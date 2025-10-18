@@ -80,9 +80,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Iniciar servidor
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
-  console.log(`📡 API disponible en http://localhost:${PORT}/api`);
-});
+// Iniciar servidor (solo en desarrollo local)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+    console.log(`📡 API disponible en http://localhost:${PORT}/api`);
+  });
+}
+
+// Exportar para Vercel serverless
+module.exports = app;
