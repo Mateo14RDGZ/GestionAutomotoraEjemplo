@@ -6,38 +6,31 @@ const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client');
 const app = express();
 
-// Inicializar Prisma Client
-const prisma = new PrismaClient();
+// Inicializar Prisma Client con configuración para serverless
+const prisma = new PrismaClient({
+  log: ['error', 'warn'],
+});
 
-// Verificar conexión a base de datos al iniciar
-async function verifyDatabaseConnection() {
+// Middleware para verificar conexión a base de datos en cada request
+app.use(async (req, res, next) => {
   try {
-    await prisma.$connect();
-    console.log('✅ Conexión a base de datos PostgreSQL exitosa');
-    
-    // Verificar que las tablas existan
-    const tables = await prisma.$queryRaw`
-      SELECT tablename 
-      FROM pg_tables 
-      WHERE schemaname = 'public'
-    `;
-    console.log(`📊 Tablas encontradas: ${tables.length}`);
-    
-    if (tables.length === 0) {
-      console.error('❌ ERROR: No se encontraron tablas en la base de datos');
-      console.error('🔧 Por favor, ejecuta el script SQL para crear las tablas');
-      process.exit(1);
+    // Solo verificar en el primer request (lazy connection)
+    if (!global.dbConnected) {
+      await prisma.$connect();
+      console.log('✅ Conexión a base de datos PostgreSQL exitosa');
+      global.dbConnected = true;
     }
+    next();
   } catch (error) {
     console.error('❌ ERROR: No se pudo conectar a la base de datos');
     console.error('Detalles:', error.message);
-    console.error('🔧 Verifica que DATABASE_URL esté correctamente configurado');
-    process.exit(1); // Fallar si no hay conexión
+    return res.status(503).json({
+      error: 'Servicio no disponible',
+      message: 'No se pudo conectar a la base de datos. Por favor, intenta más tarde.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
-}
-
-// Verificar conexión antes de iniciar el servidor
-verifyDatabaseConnection();
+});
 
 // Importar rutas
 const authRoutes = require('./routes/auth.routes');
