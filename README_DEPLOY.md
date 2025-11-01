@@ -25,6 +25,7 @@ DATABASE_URL = (tu URL de Neon aquí)
 JWT_SECRET = rv_automoviles_secret_key_2025_super_seguro
 FRONTEND_URL = https://gestio-rv-automoviles.vercel.app
 PORT = 5000
+VITE_API_URL = https://gestio-rv-automoviles.vercel.app/api
 ```
 
 **IMPORTANTE:** Para obtener `DATABASE_URL`:

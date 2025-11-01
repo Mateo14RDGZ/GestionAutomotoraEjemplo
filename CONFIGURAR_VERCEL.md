@@ -52,6 +52,13 @@
 - **Environments:** Marca las 3 opciones (Production, Preview, Development)
 - Haz clic en **Save**
 
+### Variable 6: VITE_API_URL
+- **Name:** `VITE_API_URL`
+- **Value:** `https://gestio-rv-automoviles.vercel.app/api`
+  (Si tu dominio es diferente, usa ese)
+- **Environments:** Marca las 3 opciones (Production, Preview, Development)
+- Haz clic en **Save**
+
 ## PASO 3: Ejecutar Migraciones en Neon (SOLO LA PRIMERA VEZ)
 
 Desde PowerShell, ejecuta estos comandos:

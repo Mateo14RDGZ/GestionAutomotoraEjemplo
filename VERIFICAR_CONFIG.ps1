@@ -13,7 +13,8 @@ $advertencias = 0
 Write-Host "[1/6] Verificando vercel.json..." -ForegroundColor Yellow
 if (Test-Path ".\vercel.json") {
     Write-Host "  OK vercel.json encontrado" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "  ERROR: vercel.json no encontrado" -ForegroundColor Red
     $errores++
 }
@@ -22,7 +23,8 @@ if (Test-Path ".\vercel.json") {
 Write-Host "[2/6] Verificando backend/api/index.js..." -ForegroundColor Yellow
 if (Test-Path ".\backend\api\index.js") {
     Write-Host "  OK backend/api/index.js encontrado" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "  ERROR: backend/api/index.js no encontrado" -ForegroundColor Red
     $errores++
 }
@@ -33,11 +35,13 @@ if (Test-Path ".\backend\package.json") {
     $packageJson = Get-Content ".\backend\package.json" -Raw | ConvertFrom-Json
     if ($packageJson.scripts.postinstall) {
         Write-Host "  OK Script postinstall encontrado" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "  ADVERTENCIA: Script postinstall no encontrado" -ForegroundColor Yellow
         $advertencias++
     }
-} else {
+}
+else {
     Write-Host "  ERROR: backend/package.json no encontrado" -ForegroundColor Red
     $errores++
 }
@@ -48,11 +52,13 @@ if (Test-Path ".\frontend\package.json") {
     $packageJson = Get-Content ".\frontend\package.json" -Raw | ConvertFrom-Json
     if ($packageJson.scripts.build) {
         Write-Host "  OK Script build encontrado" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "  ERROR: Script build no encontrado" -ForegroundColor Red
         $errores++
     }
-} else {
+}
+else {
     Write-Host "  ERROR: frontend/package.json no encontrado" -ForegroundColor Red
     $errores++
 }
@@ -63,11 +69,13 @@ if (Test-Path ".\backend\prisma\schema.prisma") {
     $schema = Get-Content ".\backend\prisma\schema.prisma" -Raw
     if ($schema -match 'provider\s*=\s*"postgresql"') {
         Write-Host "  OK Provider PostgreSQL configurado" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "  ADVERTENCIA: Provider no es PostgreSQL" -ForegroundColor Yellow
         $advertencias++
     }
-} else {
+}
+else {
     Write-Host "  ERROR: backend/prisma/schema.prisma no encontrado" -ForegroundColor Red
     $errores++
 }
@@ -76,7 +84,8 @@ if (Test-Path ".\backend\prisma\schema.prisma") {
 Write-Host "[6/6] Verificando .gitignore..." -ForegroundColor Yellow
 if (Test-Path ".\.gitignore") {
     Write-Host "  OK .gitignore encontrado" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "  ADVERTENCIA: .gitignore no encontrado" -ForegroundColor Yellow
     $advertencias++
 }
@@ -88,10 +97,12 @@ Write-Host "============================================" -ForegroundColor Cyan
 
 if ($errores -eq 0 -and $advertencias -eq 0) {
     Write-Host "TODO CORRECTO - Listo para deploy" -ForegroundColor Green
-} elseif ($errores -eq 0) {
+}
+elseif ($errores -eq 0) {
     Write-Host "$advertencias advertencia(s) encontrada(s)" -ForegroundColor Yellow
     Write-Host "Puedes deployar, pero revisa las advertencias" -ForegroundColor Yellow
-} else {
+}
+else {
     Write-Host "$errores error(es) encontrado(s)" -ForegroundColor Red
     Write-Host "Corrige los errores antes de deployar" -ForegroundColor Red
 }
