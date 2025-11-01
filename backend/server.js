@@ -50,12 +50,19 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:5173', // Vite default port
+  'https://gestio-rv-automoviles.vercel.app',
+  'https://gestio-rv-automoviles-3oo7.vercel.app'
 ].filter(Boolean); // Filtrar valores undefined
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Permitir requests sin origin (como mobile apps o curl)
+    // Permitir requests sin origin (como mobile apps, curl o same-origin)
     if (!origin) return callback(null, true);
+    
+    // En producción, permitir todos los dominios de Vercel
+    if (process.env.NODE_ENV === 'production' && origin.includes('.vercel.app')) {
+      return callback(null, true);
+    }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
