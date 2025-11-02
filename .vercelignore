@@ -44,10 +44,6 @@ tmp/
 # Archivos de sistema
 Thumbs.db
 
-# Scripts de desarrollo
-*.ps1
-deploy.sh
-
 # Documentación (opcional - comenta si quieres incluirla)
 # docs/
 # *.md
