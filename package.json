@@ -12,7 +12,7 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "build": "cd backend && npm install && npx prisma generate && cd ../frontend && npm install && npm run build",
+    "build": "cd api && npm install && cd ../frontend && npm install && npm run build",
     "setup": "cd backend && npx prisma generate && npx prisma db push && npx prisma db seed",
     "vercel-build": "npm run build"
   },
