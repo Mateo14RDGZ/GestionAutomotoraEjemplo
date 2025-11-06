@@ -274,9 +274,9 @@ VITE_API_URL=/api
 
 ```bash### Frontend
 
-git clone https://github.com/Mateo14RDGZ/Gestio_RV_Automoviles.git- **React 18** - Framework de interfaz de usuario
+git clone https://github.com/Mateo14RDGZ/RV_Gestion_Automotora.git- **React 18** - Framework de interfaz de usuario
 
-cd Gestio_RV_Automoviles- **Vite** - Build tool y dev server
+cd RV_Gestion_Automotora- **Vite** - Build tool y dev server
 
 ```- **TailwindCSS** - Framework de estilos
 
@@ -412,7 +412,7 @@ JWT_SECRET=tu_secreto_super_seguro_cambiar_en_produccion
 
 ```NODE_ENV=development
 
-Gestio_RV_Automoviles/DATABASE_URL="file:../database/automanager.db"
+RV_Gestion_Automotora/DATABASE_URL="file:../database/automanager.db"
 
 ├── api/                    # Funciones serverless para Vercel```
 
@@ -846,3 +846,4 @@ Si encuentras algún problema o tienes preguntas:
 ---
 
 **¡Desarrollado con ❤️ para digitalizar y modernizar tu automotora!**
+

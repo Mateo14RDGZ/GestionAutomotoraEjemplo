@@ -101,7 +101,7 @@ Necesitarás estas **6 variables de entorno**:
 1. Ve a [https://vercel.com](https://vercel.com) e inicia sesión
 2. Click en **"Add New Project"**
 3. Selecciona **"Import Git Repository"**
-4. Busca tu repositorio: `Mateo14RDGZ/Gestio_RV_Automoviles`
+4. Busca tu repositorio: `Mateo14RDGZ/RV_Gestion_Automotora`
 5. Click en **"Import"**
 
 ### Paso 4.2: Configurar el Proyecto
@@ -440,3 +440,4 @@ Si encuentras problemas:
 ---
 
 **¡Éxito con tu aplicación RV Automóviles! 🚗💨**
+
