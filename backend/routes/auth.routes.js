@@ -12,8 +12,7 @@ const validateRegister = [
     .isLength({ min: 6 })
     .withMessage('La contraseña debe tener al menos 6 caracteres')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('La contraseña debe contener al menos una mayúscula, una minúscula y un número'),
-  body('nombre').trim().isLength({ min: 2 }).withMessage('El nombre es requerido')
+    .withMessage('La contraseña debe contener al menos una mayúscula, una minúscula y un número')
 ];
 
 const validateLogin = [
@@ -41,7 +40,7 @@ router.post('/register', validateRegister, async (req, res) => {
       });
     }
 
-    const { nombre, email, password } = req.body;
+    const { email, password } = req.body;
 
     // Verificar si el usuario ya existe
     const existingUser = await prisma.usuario.findUnique({ where: { email } });
@@ -55,14 +54,14 @@ router.post('/register', validateRegister, async (req, res) => {
     // Crear usuario
     const user = await prisma.usuario.create({
       data: {
-        nombre,
         email,
         password: hashedPassword,
+        rol: 'admin'
       },
       select: {
         id: true,
-        nombre: true,
         email: true,
+        rol: true,
         createdAt: true,
       }
     });
