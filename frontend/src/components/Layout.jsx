@@ -44,11 +44,11 @@ const Layout = () => {
       {/* Sidebar para desktop */}
       <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
         <div className="flex flex-col flex-grow bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
-          <div className="flex items-center justify-center flex-shrink-0 p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-center flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <img 
-              src="/assets/logo-rv.png?v=3" 
+              src="/assets/logo-rv.png?v=4" 
               alt="RV Automoviles" 
-              className="w-full h-auto max-h-24 object-contain px-2"
+              className="w-full h-auto object-cover"
             />
           </div>
           
@@ -128,16 +128,17 @@ const Layout = () => {
             onClick={() => setSidebarOpen(false)}
           />
           <div className="fixed inset-y-0 left-0 flex flex-col w-64 bg-white dark:bg-gray-800">
-            <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center flex-1 mr-2">
+            <div className="flex items-center justify-between bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center flex-1">
                 <img 
-                  src="/assets/logo-rv.png?v=3" 
+                  src="/assets/logo-rv.png?v=4" 
                   alt="RV Automoviles" 
-                  className="w-full h-auto max-h-16 object-contain"
+                  className="w-full h-auto object-cover"
                 />
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
+                className="p-2 mr-2"
                 className="text-white"
               >
                 <X className="h-6 w-6" />
