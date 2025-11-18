@@ -48,10 +48,43 @@ app.use('/api/clientes', clientesRoutes);
 app.use('/api/pagos', pagosRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    message: 'RV Automoviles API funcionando correctamente',
+app.get('/api/health', async (req, res) => {
+  try {
+    const prisma = require('./lib/prisma');
+    // Verificar conexión a base de datos
+    await prisma.$queryRaw`SELECT 1`;
+    
+    res.json({ 
+      status: 'OK', 
+      message: 'RV Automoviles API funcionando correctamente',
+      timestamp: new Date().toISOString(),
+      database: 'connected'
+    });
+  } catch (error) {
+    res.status(503).json({ 
+      status: 'ERROR', 
+      message: 'Error de conexión a la base de datos',
+      timestamp: new Date().toISOString(),
+      database: 'disconnected',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Endpoint de diagnóstico (solo para verificar configuración)
+app.get('/api/diagnostic', (req, res) => {
+  const envVars = {
+    NODE_ENV: process.env.NODE_ENV ? '✅ Configurado' : '❌ No configurado',
+    JWT_SECRET: process.env.JWT_SECRET ? '✅ Configurado' : '❌ No configurado',
+    POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL ? '✅ Configurado' : '❌ No configurado',
+    POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING ? '✅ Configurado' : '❌ No configurado',
+    FRONTEND_URL: process.env.FRONTEND_URL || 'No configurado',
+    VITE_API_URL: process.env.VITE_API_URL || 'No configurado'
+  };
+
+  res.json({
+    message: 'Diagnóstico de variables de entorno',
+    variables: envVars,
     timestamp: new Date().toISOString()
   });
 });

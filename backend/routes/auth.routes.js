@@ -90,6 +90,17 @@ router.post('/login', validateLogin, async (req, res) => {
 
     const { email, password } = req.body;
 
+    // Verificar conexión a base de datos
+    try {
+      await prisma.$connect();
+    } catch (dbError) {
+      console.error('❌ Error de conexión a base de datos:', dbError);
+      return res.status(503).json({ 
+        error: 'Error de conexión a la base de datos',
+        message: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+      });
+    }
+
     // Buscar usuario por email
     const user = await prisma.usuario.findUnique({ 
       where: { email },
@@ -136,10 +147,23 @@ router.post('/login', validateLogin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error en login:', error);
+    console.error('❌ Error en login:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Error code:', error.code);
+    
+    // Verificar si es un error de Prisma
+    if (error.code === 'P1001' || error.code === 'P1000') {
+      return res.status(503).json({ 
+        error: 'Error de conexión a la base de datos',
+        message: 'No se pudo conectar a la base de datos. Verifica las variables de entorno.'
+      });
+    }
+
     res.status(500).json({ 
       error: 'Error al iniciar sesión',
-      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      code: error.code || 'UNKNOWN_ERROR'
     });
   }
 });
