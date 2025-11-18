@@ -687,16 +687,10 @@ const Reportes = () => {
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 Exporta la lista completa de autos con toda su información
               </p>
-              <div className="flex gap-2">
-                <button onClick={handleExportAutos} className="btn btn-primary text-sm flex items-center gap-2">
-                  <FileDown className="w-4 h-4" />
-                  CSV
-                </button>
-                <button onClick={handleExportAutosPDF} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors">
-                  <FileText className="w-4 h-4" />
-                  PDF
-                </button>
-              </div>
+              <button onClick={handleExportAutosPDF} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors">
+                <FileText className="w-4 h-4" />
+                PDF
+              </button>
             </div>
           </div>
         </div>
@@ -714,16 +708,10 @@ const Reportes = () => {
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 Exporta la información completa de todos los clientes
               </p>
-              <div className="flex gap-2">
-                <button onClick={handleExportClientes} className="btn btn-primary text-sm flex items-center gap-2">
-                  <FileDown className="w-4 h-4" />
-                  CSV
-                </button>
-                <button onClick={handleExportClientesPDF} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors">
-                  <FileText className="w-4 h-4" />
-                  PDF
-                </button>
-              </div>
+              <button onClick={handleExportClientesPDF} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors">
+                <FileText className="w-4 h-4" />
+                PDF
+              </button>
             </div>
           </div>
         </div>
@@ -741,16 +729,10 @@ const Reportes = () => {
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 Exporta el registro completo de pagos y cuotas
               </p>
-              <div className="flex gap-2">
-                <button onClick={handleExportPagos} className="btn btn-primary text-sm flex items-center gap-2">
-                  <FileDown className="w-4 h-4" />
-                  CSV
-                </button>
-                <button onClick={handleExportPagosPDF} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors">
-                  <FileText className="w-4 h-4" />
-                  PDF
-                </button>
-              </div>
+              <button onClick={handleExportPagosPDF} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors">
+                <FileText className="w-4 h-4" />
+                PDF
+              </button>
             </div>
           </div>
         </div>
@@ -768,16 +750,10 @@ const Reportes = () => {
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 Exporta un resumen completo de todas las estadísticas
               </p>
-              <div className="flex gap-2">
-                <button onClick={handleExportGeneral} className="btn btn-primary text-sm flex items-center gap-2">
-                  <FileDown className="w-4 h-4" />
-                  JSON
-                </button>
-                <button onClick={handleExportGeneralPDF} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors">
-                  <FileText className="w-4 h-4" />
-                  PDF
-                </button>
-              </div>
+              <button onClick={handleExportGeneralPDF} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors">
+                <FileText className="w-4 h-4" />
+                PDF
+              </button>
             </div>
           </div>
         </div>
@@ -802,23 +778,6 @@ const Reportes = () => {
           </button>
         </div>
       )}
-
-      {/* Información adicional */}
-      <div className="card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900">
-        <div className="flex items-start gap-3">
-          <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-          <div>
-            <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">Sobre los Reportes</h4>
-            <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
-              <li>• Los archivos <strong>PDF</strong> son ideales para impresión y presentaciones profesionales</li>
-              <li>• Los archivos <strong>CSV</strong> pueden abrirse con Excel o Google Sheets para análisis</li>
-              <li>• Los reportes <strong>JSON</strong> contienen datos estructurados para integración con otros sistemas</li>
-              <li>• Los datos exportados reflejan el estado actual del sistema</li>
-              <li>• Todos los reportes incluyen el logo y branding de RV Automoviles</li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
