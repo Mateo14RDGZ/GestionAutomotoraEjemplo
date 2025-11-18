@@ -44,11 +44,11 @@ const Layout = () => {
       {/* Sidebar para desktop */}
       <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
         <div className="flex flex-col flex-grow bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
-          <div className="flex items-center justify-center flex-shrink-0 px-6 py-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-center flex-shrink-0 p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <img 
-              src="/assets/logo-rv.png?v=2" 
+              src="/assets/logo-rv.png?v=3" 
               alt="RV Automoviles" 
-              className="h-20 w-auto object-contain"
+              className="w-full h-auto max-h-24 object-contain px-2"
             />
           </div>
           
@@ -128,12 +128,12 @@ const Layout = () => {
             onClick={() => setSidebarOpen(false)}
           />
           <div className="fixed inset-y-0 left-0 flex flex-col w-64 bg-white dark:bg-gray-800">
-            <div className="flex items-center justify-between px-6 py-5 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center">
+            <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center flex-1 mr-2">
                 <img 
-                  src="/assets/logo-rv.png?v=2" 
+                  src="/assets/logo-rv.png?v=3" 
                   alt="RV Automoviles" 
-                  className="h-14 w-auto object-contain"
+                  className="w-full h-auto max-h-16 object-contain"
                 />
               </div>
               <button
