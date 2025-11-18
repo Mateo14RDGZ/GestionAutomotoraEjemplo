@@ -36,11 +36,11 @@ app.use('/api/', apiLimiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-const authRoutes = require('../backend/routes/auth.routes');
-const autosRoutes = require('../backend/routes/autos.routes');
-const clientesRoutes = require('../backend/routes/clientes.routes');
-const pagosRoutes = require('../backend/routes/pagos.routes');
-const dashboardRoutes = require('../backend/routes/dashboard.routes');
+const authRoutes = require('./routes/auth.routes');
+const autosRoutes = require('./routes/autos.routes');
+const clientesRoutes = require('./routes/clientes.routes');
+const pagosRoutes = require('./routes/pagos.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/autos', autosRoutes);
