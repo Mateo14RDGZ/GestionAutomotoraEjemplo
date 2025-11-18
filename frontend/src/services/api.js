@@ -1,6 +1,17 @@
 import axios from 'axios';
 
+// Obtener la URL de la API desde las variables de entorno
+// En desarrollo: http://localhost:5000/api
+// En producción: /api (ruta relativa)
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Validar que la URL sea válida
+if (!API_URL.startsWith('http') && !API_URL.startsWith('/')) {
+  console.error('❌ VITE_API_URL inválida:', API_URL);
+  throw new Error(`URL de API inválida: ${API_URL}. Debe comenzar con http:// o /`);
+}
+
+console.log('🔗 API URL configurada:', API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
