@@ -1,49 +1,9 @@
-# Dependencias
-node_modules/
-.pnp
-.pnp.js
-
-# Testing
-coverage/
-
-# Archivos locales
-.DS_Store
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-*.log
-
-# Archivos de IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# Archivos temporales
-.cache/
-.temp/
-tmp/
-
-# Base de datos local
-*.db
-*.sqlite
-*.sqlite3
-
-# Archivos de Git
-.git/
-
-# Archivos de sistema
-Thumbs.db
-
-# Documentación (opcional - comenta si quieres incluirla)
-# docs/
-# *.md
+backend/node_modules
+backend/database
+backend/*.db
+backend/*.db-journal
+frontend/node_modules
+node_modules
+.git
+.vscode
+.idea
