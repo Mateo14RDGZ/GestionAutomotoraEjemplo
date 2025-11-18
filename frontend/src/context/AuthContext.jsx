@@ -47,11 +47,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const data = await authService.login(email, password);
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    setUser(data.user);
-    return data;
+    try {
+      const data = await authService.login(email, password);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setUser(data.user);
+      return data;
+    } catch (error) {
+      // Asegurar que siempre lanzamos un Error estándar
+      const errorMessage = error?.message || error?.data?.error || error?.error || 'Error al iniciar sesión';
+      throw new Error(errorMessage);
+    }
   };
 
   const logout = () => {

@@ -32,7 +32,13 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
-    return Promise.reject(error);
+    // Normalizar el formato del error para evitar problemas con React
+    const normalizedError = {
+      message: error.response?.data?.error || error.response?.data?.message || error.message || 'Error desconocido',
+      status: error.response?.status,
+      data: error.response?.data
+    };
+    return Promise.reject(normalizedError);
   }
 );
 

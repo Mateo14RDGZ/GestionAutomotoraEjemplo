@@ -31,7 +31,9 @@ const Login = () => {
         // loginCliente hace su propia navegación, no necesitamos navigate aquí
       }
     } catch (err) {
-      setError(err.response?.data?.error || err.error || 'Error al iniciar sesión');
+      // Manejar diferentes formatos de error
+      const errorMessage = err?.message || err?.response?.data?.error || err?.error || err?.data?.error || 'Error al iniciar sesión';
+      setError(errorMessage);
       setLoading(false);
     }
   };

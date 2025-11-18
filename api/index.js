@@ -66,7 +66,8 @@ app.get('/api', (req, res) => {
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(err.status || 500).json({ 
-    error: err.message || 'Error interno del servidor'
+    error: err.message || 'Error interno del servidor',
+    code: err.code || 'INTERNAL_ERROR'
   });
 });
 

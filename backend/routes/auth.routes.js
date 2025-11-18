@@ -106,6 +106,12 @@ router.post('/login', validateLogin, async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
+    // Verificar que JWT_SECRET esté configurado
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET no está configurado');
+      return res.status(500).json({ error: 'Error de configuración del servidor' });
+    }
+
     // Generar token con rol y clienteId
     const token = jwt.sign(
       { 
@@ -131,7 +137,10 @@ router.post('/login', validateLogin, async (req, res) => {
     });
   } catch (error) {
     console.error('Error en login:', error);
-    res.status(500).json({ error: 'Error al iniciar sesión' });
+    res.status(500).json({ 
+      error: 'Error al iniciar sesión',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
