@@ -205,7 +205,10 @@ const Pagos = () => {
         await handleFilter(filter);
       }
     } catch (error) {
-      alert('Error al actualizar el pago');
+      console.error('Error al actualizar el pago:', error);
+      // No mostrar el modal de email si hay error
+      setShowConfirmModal(false);
+      setPagoSeleccionado(null);
     }
   };
 
