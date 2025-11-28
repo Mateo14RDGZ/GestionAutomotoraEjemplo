@@ -235,6 +235,50 @@ const Pagos = () => {
     }
   };
 
+  const enviarWhatsAppConfirmacion = () => {
+    try {
+      const cliente = pagoParaEmail.auto.cliente;
+      const auto = pagoParaEmail.auto;
+      const fechaPago = new Date(pagoParaEmail.fechaPago || new Date()).toLocaleDateString('es-EC', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+      
+      const mensaje = `✅ *Pago Confirmado - RV Automóviles*\n\n` +
+        `Estimado/a *${cliente.nombre}*,\n\n` +
+        `Le confirmamos que hemos recibido su pago correspondiente a:\n\n` +
+        `🚗 *Vehículo:* ${auto.marca} ${auto.modelo} ${auto.anio}\n` +
+        `📋 *Matrícula:* ${auto.matricula}\n` +
+        `🔢 *Cuota:* #${pagoParaEmail.numeroCuota}\n` +
+        `💰 *Monto Pagado:* $${parseFloat(pagoParaEmail.monto).toFixed(2)}\n` +
+        `📅 *Fecha de Pago:* ${fechaPago}\n\n` +
+        `Agradecemos su puntualidad.\n\n` +
+        `💻 *Control en Línea*\n` +
+        `Puede ver el estado de todas sus cuotas en:\n` +
+        `https://rv-gestion-automotora20.vercel.app\n` +
+        `Ingrese con su número de cédula.\n\n` +
+        `_RV Automóviles - Su concesionario de confianza_`;
+      
+      // Limpiar el número de teléfono (quitar espacios, guiones, etc.)
+      const telefono = cliente.telefono.replace(/[^0-9]/g, '');
+      
+      // Abrir WhatsApp
+      const url = `https://wa.me/593${telefono}?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, '_blank');
+      
+      // Cerrar modal
+      setTimeout(() => {
+        setShowEmailModal(false);
+        setPagoParaEmail(null);
+        setEmailEnviado(false);
+      }, 500);
+    } catch (error) {
+      console.error('Error al abrir WhatsApp:', error);
+      setEmailError('Error al abrir WhatsApp');
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       autoId: '',
@@ -1232,7 +1276,7 @@ const Pagos = () => {
               {!emailEnviado && (
                 <>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 text-center">
-                    ¿Deseas enviar un email de confirmación al cliente?
+                    ¿Cómo deseas notificar al cliente?
                   </p>
                   
                   {emailError && (
@@ -1265,10 +1309,20 @@ const Pagos = () => {
                         </>
                       ) : (
                         <>
-                          📧 Enviar Email de Confirmación
+                          📧 Enviar Email
                         </>
                       )}
                     </button>
+
+                    {!emailEnviado && (
+                      <button
+                        onClick={enviarWhatsAppConfirmacion}
+                        disabled={loading}
+                        className="w-full bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white py-2.5 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        💬 Enviar WhatsApp
+                      </button>
+                    )}
                     
                     {!emailEnviado && (
                       <button
