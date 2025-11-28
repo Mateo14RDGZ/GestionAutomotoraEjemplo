@@ -29,7 +29,7 @@ const Layout = () => {
   // Items del menú según el rol
   const navItems = user?.rol === 'admin' 
     ? [
-        { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Escritorio' },
         { to: '/autos', icon: Car, label: 'Autos' },
         { to: '/clientes', icon: Users, label: 'Clientes' },
         { to: '/pagos', icon: CreditCard, label: 'Pagos' },
