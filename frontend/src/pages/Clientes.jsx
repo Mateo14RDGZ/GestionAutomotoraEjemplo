@@ -46,16 +46,27 @@ const Clientes = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('📝 Enviando datos del cliente:', formData);
+      
       if (editingCliente) {
         await clientesService.update(editingCliente.id, formData);
+        alert('Cliente actualizado exitosamente');
       } else {
-        await clientesService.create(formData);
+        const response = await clientesService.create(formData);
+        console.log('✅ Cliente creado:', response);
+        
+        if (response.passwordTemporal) {
+          alert(`Cliente creado exitosamente.\n\nSe ha creado un usuario con:\nEmail: ${formData.email}\nContraseña temporal: ${response.passwordTemporal}\n\nEl cliente puede usar estas credenciales para acceder al portal.`);
+        } else {
+          alert('Cliente creado exitosamente');
+        }
       }
       setShowModal(false);
       resetForm();
       loadClientes();
     } catch (error) {
-      alert(error.response?.data?.error || 'Error al guardar el cliente');
+      console.error('❌ Error al guardar cliente:', error);
+      alert(error.response?.data?.error || error.message || 'Error al guardar el cliente');
     }
   };
 
@@ -276,7 +287,11 @@ const Clientes = () => {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="input"
+                    placeholder="correo@ejemplo.com"
                   />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Si proporcionas un email, se creará un usuario para acceso al portal del cliente
+                  </p>
                 </div>
 
                 <div>

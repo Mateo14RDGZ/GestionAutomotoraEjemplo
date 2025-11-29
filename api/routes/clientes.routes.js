@@ -86,9 +86,11 @@ router.post('/', async (req, res) => {
   try {
     const { nombre, cedula, telefono, direccion, email } = req.body;
 
+    console.log('📝 Creando cliente:', { nombre, cedula, telefono, email });
+
     // Validar campos obligatorios
-    if (!nombre || !cedula || !telefono || !email) {
-      return res.status(400).json({ error: 'Nombre, cédula, teléfono y email son obligatorios' });
+    if (!nombre || !cedula || !telefono) {
+      return res.status(400).json({ error: 'Nombre, cédula y teléfono son obligatorios' });
     }
 
     // Verificar si la cédula ya existe
@@ -100,16 +102,18 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'La cédula ya está registrada' });
     }
 
-    // Verificar si el email ya existe
-    const existingEmail = await prisma.cliente.findUnique({
-      where: { email }
-    });
+    // Si se proporciona email, verificar que no exista
+    if (email) {
+      const existingEmail = await prisma.cliente.findFirst({
+        where: { email }
+      });
 
-    if (existingEmail) {
-      return res.status(400).json({ error: 'El email ya está registrado' });
+      if (existingEmail) {
+        return res.status(400).json({ error: 'El email ya está registrado' });
+      }
     }
 
-    // Crear cliente y usuario en una transacción
+    // Crear cliente y opcionalmente usuario en una transacción
     const result = await prisma.$transaction(async (tx) => {
       // Crear cliente
       const cliente = await tx.cliente.create({
@@ -117,34 +121,50 @@ router.post('/', async (req, res) => {
           nombre,
           cedula,
           telefono,
-          direccion,
-          email,
+          direccion: direccion || null,
+          email: email || null,
         }
       });
 
-      // Crear usuario con contraseña = últimos 4 dígitos de cédula
-      const passwordCliente = cedula.slice(-4);
-      const hashedPassword = await bcrypt.hash(passwordCliente, 10);
-      
-      await tx.usuario.create({
-        data: {
-          email,
-          password: hashedPassword,
-          rol: 'cliente',
-          clienteId: cliente.id,
-        }
-      });
+      let passwordCliente = null;
+
+      // Solo crear usuario si se proporciona email
+      if (email) {
+        // Crear usuario con contraseña = últimos 4 dígitos de cédula
+        passwordCliente = cedula.slice(-4);
+        const hashedPassword = await bcrypt.hash(passwordCliente, 10);
+        
+        await tx.usuario.create({
+          data: {
+            email,
+            password: hashedPassword,
+            rol: 'cliente',
+            clienteId: cliente.id,
+          }
+        });
+      }
 
       return { cliente, passwordCliente };
     });
 
-    res.status(201).json({
+    console.log('✅ Cliente creado:', result.cliente.id);
+
+    const response = {
       ...result.cliente,
-      passwordTemporal: result.passwordCliente
-    });
+    };
+
+    if (result.passwordCliente) {
+      response.passwordTemporal = result.passwordCliente;
+    }
+
+    res.status(201).json(response);
   } catch (error) {
-    console.error('Error al crear cliente:', error);
-    res.status(500).json({ error: 'Error al crear cliente' });
+    console.error('❌ Error al crear cliente:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Error al crear cliente',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -153,6 +173,8 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, cedula, telefono, direccion, email } = req.body;
+
+    console.log('📝 Actualizando cliente:', id, { nombre, cedula, telefono, email });
 
     // Verificar si el cliente existe
     const existingCliente = await prisma.cliente.findUnique({
@@ -173,21 +195,40 @@ router.put('/:id', async (req, res) => {
       }
     }
 
+    // Si se proporciona email y es diferente, verificar que no exista
+    if (email && email !== existingCliente.email) {
+      const emailExists = await prisma.cliente.findFirst({
+        where: { 
+          email,
+          id: { not: parseInt(id) }
+        }
+      });
+      if (emailExists) {
+        return res.status(400).json({ error: 'El email ya está registrado' });
+      }
+    }
+
     const cliente = await prisma.cliente.update({
       where: { id: parseInt(id) },
       data: {
         nombre,
         cedula,
         telefono,
-        direccion,
-        email,
+        direccion: direccion || null,
+        email: email || null,
       }
     });
 
+    console.log('✅ Cliente actualizado:', cliente.id);
+
     res.json(cliente);
   } catch (error) {
-    console.error('Error al actualizar cliente:', error);
-    res.status(500).json({ error: 'Error al actualizar cliente' });
+    console.error('❌ Error al actualizar cliente:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Error al actualizar cliente',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
