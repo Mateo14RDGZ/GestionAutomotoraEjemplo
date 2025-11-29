@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
 import { clientesService } from '../services';
 import { Users, Plus, Search, Edit2, Trash2, Phone, Mail, MapPin } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const Clientes = () => {
+  const { showToast } = useToast();
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingCliente, setEditingCliente] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, clienteId: null });
   const [formData, setFormData] = useState({
     nombre: '',
     cedula: '',
@@ -50,41 +54,42 @@ const Clientes = () => {
       
       if (editingCliente) {
         await clientesService.update(editingCliente.id, formData);
-        alert('Cliente actualizado exitosamente');
+        showToast('Cliente actualizado exitosamente', 'success');
       } else {
         const response = await clientesService.create(formData);
         console.log('✅ Cliente creado:', response);
         
-        let mensaje = 'Cliente creado exitosamente';
+        showToast('Cliente creado exitosamente', 'success');
         
         // Si hubo ajustes automáticos, informar al admin
         if (response.mensajeInfo) {
-          mensaje += '\n\n⚠️ ' + response.mensajeInfo;
+          showToast(response.mensajeInfo, 'warning', 6000);
         }
         
         if (response.passwordTemporal) {
-          mensaje += `\n\n🔐 Credenciales de acceso:\nEmail: ${response.email}\nContraseña temporal: ${response.passwordTemporal}\n\nEl cliente puede usar estas credenciales para acceder al portal.`;
+          showToast(`🔐 Credenciales: ${response.email} / ${response.passwordTemporal}`, 'info', 8000);
         }
-        
-        alert(mensaje);
       }
       setShowModal(false);
       resetForm();
       loadClientes();
     } catch (error) {
       console.error('❌ Error al guardar cliente:', error);
-      alert(error.response?.data?.error || error.message || 'Error al guardar el cliente');
+      showToast(error.response?.data?.error || error.message || 'Error al guardar el cliente', 'error');
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Está seguro de eliminar este cliente?')) {
-      try {
-        await clientesService.delete(id);
-        loadClientes();
-      } catch (error) {
-        alert(error.response?.data?.error || 'Error al eliminar el cliente');
-      }
+    setConfirmDialog({ isOpen: true, clienteId: id });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await clientesService.delete(confirmDialog.clienteId);
+      showToast('Cliente eliminado exitosamente', 'success');
+      loadClientes();
+    } catch (error) {
+      showToast(error.response?.data?.error || 'Error al eliminar el cliente', 'error');
     }
   };
 
@@ -334,6 +339,17 @@ const Clientes = () => {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, clienteId: null })}
+        onConfirm={confirmDelete}
+        title="Eliminar Cliente"
+        message="¿Está seguro de que desea eliminar este cliente? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </div>
   );
 };

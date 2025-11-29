@@ -15,8 +15,10 @@ import {
 } from 'lucide-react';
 import Loading from '../components/Loading';
 import StatCard from '../components/StatCard';
+import { useToast } from '../context/ToastContext';
 
 const Reportes = () => {
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [reportType, setReportType] = useState('general');
@@ -45,8 +47,9 @@ const Reportes = () => {
       const autos = await autosService.getAll();
       const formatted = formatDataForExport(autos, 'autos');
       exportToCSV(formatted, `autos_${new Date().toISOString().split('T')[0]}.csv`);
+      showToast('Autos exportados exitosamente', 'success');
     } catch (error) {
-      alert('Error al exportar autos');
+      showToast('Error al exportar autos', 'error');
     }
   };
 
@@ -55,8 +58,9 @@ const Reportes = () => {
       const clientes = await clientesService.getAll();
       const formatted = formatDataForExport(clientes, 'clientes');
       exportToCSV(formatted, `clientes_${new Date().toISOString().split('T')[0]}.csv`);
+      showToast('Clientes exportados exitosamente', 'success');
     } catch (error) {
-      alert('Error al exportar clientes');
+      showToast('Error al exportar clientes', 'error');
     }
   };
 
@@ -65,8 +69,9 @@ const Reportes = () => {
       const pagos = await pagosService.getAll();
       const formatted = formatDataForExport(pagos, 'pagos');
       exportToCSV(formatted, `pagos_${new Date().toISOString().split('T')[0]}.csv`);
+      showToast('Pagos exportados exitosamente', 'success');
     } catch (error) {
-      alert('Error al exportar pagos');
+      showToast('Error al exportar pagos', 'error');
     }
   };
 
@@ -78,8 +83,9 @@ const Reportes = () => {
         rango_fechas: dateRange
       };
       exportToJSON(data, `reporte_general_${new Date().toISOString().split('T')[0]}.json`);
+      showToast('Reporte general exportado exitosamente', 'success');
     } catch (error) {
-      alert('Error al exportar reporte general');
+      showToast('Error al exportar reporte general', 'error');
     }
   };
 
@@ -135,11 +141,13 @@ const Reportes = () => {
         );
       }
       
-      doc.save(`inventario_autos_${new Date().toISOString().split('T')[0]}.pdf`);
+      doc.save(`pagos_${new Date().toISOString().split('T')[0]}.pdf`);
+      showToast('PDF de pagos exportado exitosamente', 'success');
     } catch (error) {
       console.error('Error al exportar PDF:', error);
-      alert('Error al exportar autos a PDF');
+      showToast('Error al exportar pagos a PDF', 'error');
     }
+  };}
   };
 
   const handleExportClientesPDF = async () => {
@@ -196,9 +204,10 @@ const Reportes = () => {
       }
       
       doc.save(`clientes_${new Date().toISOString().split('T')[0]}.pdf`);
+      showToast('PDF de clientes exportado exitosamente', 'success');
     } catch (error) {
       console.error('Error al exportar PDF:', error);
-      alert('Error al exportar clientes a PDF');
+      showToast('Error al exportar clientes a PDF', 'error');
     }
   };
 
@@ -589,9 +598,10 @@ const Reportes = () => {
       );
       
       doc.save(`reporte_general_${new Date().toISOString().split('T')[0]}.pdf`);
+      showToast('PDF de reporte general exportado exitosamente', 'success');
     } catch (error) {
       console.error('Error al exportar PDF:', error);
-      alert('Error al exportar reporte general a PDF');
+      showToast('Error al exportar reporte general a PDF', 'error');
     }
   };
 

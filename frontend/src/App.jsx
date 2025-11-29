@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './context/ToastContext';
 import PrivateRoute from './components/PrivateRoute';
 import RoleBasedRedirect from './components/RoleBasedRedirect';
 import Layout from './components/Layout';
@@ -18,28 +19,30 @@ function App() {
   return (
     <ThemeProvider>
       <ThemeTransitionOverlay />
-      <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            
-            <Route element={<PrivateRoute />}>
-              <Route element={<Layout />}>
-                <Route path="/" element={<RoleBasedRedirect />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/autos" element={<Autos />} />
-                <Route path="/clientes" element={<Clientes />} />
-                <Route path="/pagos" element={<Pagos />} />
-                <Route path="/reportes" element={<Reportes />} />
-                <Route path="/mi-dashboard" element={<ClienteDashboard />} />
+      <ToastProvider>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              
+              <Route element={<PrivateRoute />}>
+                <Route element={<Layout />}>
+                  <Route path="/" element={<RoleBasedRedirect />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/autos" element={<Autos />} />
+                  <Route path="/clientes" element={<Clientes />} />
+                  <Route path="/pagos" element={<Pagos />} />
+                  <Route path="/reportes" element={<Reportes />} />
+                  <Route path="/mi-dashboard" element={<ClienteDashboard />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-          
-          {/* Banner de instalación PWA */}
-          <InstallPWABanner />
-        </Router>
-      </AuthProvider>
+            </Routes>
+            
+            {/* Banner de instalación PWA */}
+            <InstallPWABanner />
+          </Router>
+        </AuthProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }

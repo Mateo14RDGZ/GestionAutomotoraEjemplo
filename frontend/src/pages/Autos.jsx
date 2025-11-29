@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { autosService, clientesService } from '../services';
 import { Car, Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const Autos = () => {
+  const { showToast } = useToast();
   const [autos, setAutos] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,6 +13,7 @@ const Autos = () => {
   const [estadoFilter, setEstadoFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingAuto, setEditingAuto] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, autoId: null });
   const [formData, setFormData] = useState({
     marca: '',
     modelo: '',
@@ -59,25 +63,30 @@ const Autos = () => {
     try {
       if (editingAuto) {
         await autosService.update(editingAuto.id, formData);
+        showToast('Auto actualizado exitosamente', 'success');
       } else {
         await autosService.create(formData);
+        showToast('Auto creado exitosamente', 'success');
       }
       setShowModal(false);
       resetForm();
       loadData();
     } catch (error) {
-      alert(error.response?.data?.error || 'Error al guardar el auto');
+      showToast(error.response?.data?.error || 'Error al guardar el auto', 'error');
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Está seguro de eliminar este auto?')) {
-      try {
-        await autosService.delete(id);
-        loadData();
-      } catch (error) {
-        alert(error.response?.data?.error || 'Error al eliminar el auto');
-      }
+    setConfirmDialog({ isOpen: true, autoId: id });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await autosService.delete(confirmDialog.autoId);
+      showToast('Auto eliminado exitosamente', 'success');
+      loadData();
+    } catch (error) {
+      showToast(error.response?.data?.error || 'Error al eliminar el auto', 'error');
     }
   };
 
@@ -466,6 +475,17 @@ const Autos = () => {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, autoId: null })}
+        onConfirm={confirmDelete}
+        title="Eliminar Auto"
+        message="¿Está seguro de que desea eliminar este auto? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </div>
   );
 };
