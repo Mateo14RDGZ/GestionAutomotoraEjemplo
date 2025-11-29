@@ -41,12 +41,14 @@ const autosRoutes = require('./routes/autos.routes');
 const clientesRoutes = require('./routes/clientes.routes');
 const pagosRoutes = require('./routes/pagos.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
+const notificacionesRoutes = require('./routes/notificaciones.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/autos', autosRoutes);
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/pagos', pagosRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/notificaciones', notificacionesRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {

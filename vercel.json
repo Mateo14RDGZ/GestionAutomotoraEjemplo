@@ -2,9 +2,28 @@
   "buildCommand": "npm run build:vercel",
   "outputDirectory": "frontend/dist",
   "installCommand": "npm run install:vercel",
+  "crons": [
+    {
+      "path": "/api/notificaciones/enviar-recordatorios",
+      "schedule": "0 9 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/firebase-messaging-sw.js",
       "headers": [
         {
           "key": "Cache-Control",

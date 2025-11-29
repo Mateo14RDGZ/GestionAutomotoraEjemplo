@@ -6,6 +6,7 @@ import RoleBasedRedirect from './components/RoleBasedRedirect';
 import Layout from './components/Layout';
 import ThemeTransitionOverlay from './components/ThemeTransitionOverlay';
 import InstallPWABanner from './components/InstallPWABanner';
+import NotificationPrompt from './components/NotificationPrompt';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Autos from './pages/Autos';
@@ -38,6 +39,9 @@ function App() {
           
           {/* Banner de instalación PWA */}
           <InstallPWABanner />
+          
+          {/* Prompt de activación de notificaciones */}
+          <NotificationPrompt />
         </Router>
       </AuthProvider>
     </ThemeProvider>
