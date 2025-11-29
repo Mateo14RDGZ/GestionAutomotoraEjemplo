@@ -6,6 +6,7 @@ import jsPDF from 'jspdf';
 
 const HistorialPagos = () => {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [pagos, setPagos] = useState([]);
   const [filteredPagos, setFilteredPagos] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,14 +23,16 @@ const HistorialPagos = () => {
   const loadHistorial = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await pagosService.getAll();
-      const pagosSorted = response.data.sort((a, b) => 
+      const pagosSorted = (response.data || []).sort((a, b) => 
         new Date(b.fechaVencimiento) - new Date(a.fechaVencimiento)
       );
       setPagos(pagosSorted);
       setFilteredPagos(pagosSorted);
     } catch (error) {
       console.error('Error al cargar historial:', error);
+      setError(error.message || 'Error al cargar el historial');
     } finally {
       setLoading(false);
     }
@@ -172,6 +175,23 @@ const HistorialPagos = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="card max-w-md">
+          <div className="text-center">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Error al cargar historial</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+            <button onClick={loadHistorial} className="btn btn-primary">
+              Reintentar
+            </button>
+          </div>
+        </div>
       </div>
     );
   }

@@ -6,6 +6,7 @@ import { formatCurrency, formatDate } from '../utils/format';
 
 const ClienteDashboard = () => {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
   const [proximoPago, setProximoPago] = useState(null);
 
@@ -16,8 +17,9 @@ const ClienteDashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await pagosService.getAll();
-      const pagos = response.data;
+      const pagos = response.data || [];
 
       // Calcular estadísticas
       const pagados = pagos.filter(p => p.estado === 'pagado');
@@ -50,6 +52,7 @@ const ClienteDashboard = () => {
       setProximoPago(proximosPagos[0] || null);
     } catch (error) {
       console.error('Error al cargar dashboard:', error);
+      setError(error.message || 'Error al cargar los datos');
     } finally {
       setLoading(false);
     }
@@ -66,6 +69,37 @@ const ClienteDashboard = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="card max-w-md">
+          <div className="text-center">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Error al cargar datos</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+            <button onClick={loadDashboardData} className="btn btn-primary">
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="card max-w-md">
+          <div className="text-center">
+            <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No hay datos disponibles</h2>
+            <p className="text-gray-600 dark:text-gray-400">No se encontró información de pagos.</p>
+          </div>
+        </div>
       </div>
     );
   }
