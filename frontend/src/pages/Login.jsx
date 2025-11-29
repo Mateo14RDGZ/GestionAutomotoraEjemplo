@@ -233,14 +233,21 @@ const Login = () => {
                       id="cedula"
                       type="text"
                       value={cedula}
-                      onChange={(e) => setCedula(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        if (value.length <= 8) {
+                          setCedula(value);
+                        }
+                      }}
                       className="w-full pl-11 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="Ej: 1234567890"
+                      placeholder="Ej: 12345678"
+                      maxLength="8"
+                      pattern="[0-9]{8}"
                       required
                     />
                   </div>
                   <p className="text-gray-500 dark:text-gray-400 text-xs mt-2">
-                    Ingresa tu número de cédula (8-13 dígitos) para ver tus pagos pendientes
+                    Ingresa tu número de cédula (8 dígitos) para ver tus pagos pendientes
                   </p>
                 </div>
               )}

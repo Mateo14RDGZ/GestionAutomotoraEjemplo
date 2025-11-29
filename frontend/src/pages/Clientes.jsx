@@ -271,7 +271,15 @@ const Clientes = () => {
                       type="text"
                       required
                       value={formData.cedula}
-                      onChange={(e) => setFormData({ ...formData, cedula: e.target.value })}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        if (value.length <= 8) {
+                          setFormData({ ...formData, cedula: value });
+                        }
+                      }}
+                      maxLength="8"
+                      pattern="[0-9]{8}"
+                      placeholder="Ej: 12345678"
                       className="input"
                     />
                   </div>
@@ -303,7 +311,7 @@ const Clientes = () => {
                   />
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Si proporcionas un email, se creará un usuario para acceso al portal. 
-                    El cliente podrá iniciar sesión usando solo su cédula (sin sufijos).
+                    El cliente podrá iniciar sesión usando su cédula de 8 dígitos.
                   </p>
                 </div>
 
