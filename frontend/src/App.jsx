@@ -12,7 +12,6 @@ import Clientes from './pages/Clientes';
 import Pagos from './pages/Pagos';
 import Reportes from './pages/Reportes';
 import ClienteDashboard from './pages/ClienteDashboard';
-import HistorialPagos from './pages/HistorialPagos';
 
 function App() {
   return (
@@ -32,7 +31,6 @@ function App() {
                 <Route path="/pagos" element={<Pagos />} />
                 <Route path="/reportes" element={<Reportes />} />
                 <Route path="/mi-dashboard" element={<ClienteDashboard />} />
-                <Route path="/historial" element={<HistorialPagos />} />
               </Route>
             </Route>
           </Routes>
