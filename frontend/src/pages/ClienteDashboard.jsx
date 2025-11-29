@@ -115,7 +115,7 @@ const ClienteDashboard = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Mi Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Mi Escritorio</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
           Resumen completo de tu crédito automotor
         </p>
@@ -273,6 +273,123 @@ const ClienteDashboard = () => {
                 Por favor, ponte al día con tus pagos lo antes posible. Contacta con nosotros si necesitas ayuda.
               </p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sección de Cuotas Pagadas */}
+      {stats.pagados.length > 0 && (
+        <div className="card dark:bg-gray-800 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+              Últimas Cuotas Pagadas
+            </h2>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {stats.cuotasPagadas} pagada{stats.cuotasPagadas !== 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="space-y-3">
+            {stats.pagados.slice(0, 5).map((pago) => (
+              <div
+                key={pago.id}
+                className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 hover:shadow-md transition-shadow"
+              >
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        Cuota #{pago.numeroCuota}
+                      </span>
+                      <span className="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400">
+                        ✓ Pagado
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <p>{pago.auto.marca} {pago.auto.modelo} - {pago.auto.matricula}</p>
+                      <p className="mt-1">Pagado: {formatDate(pago.fechaPago)}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                      {formatCurrency(pago.monto)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {stats.cuotasPagadas > 5 && (
+              <p className="text-sm text-center text-gray-500 dark:text-gray-400 pt-2">
+                Mostrando 5 de {stats.cuotasPagadas} cuotas pagadas
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Sección de Cuotas Pendientes */}
+      {stats.pendientes.length > 0 && (
+        <div className="card dark:bg-gray-800 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+              Próximas Cuotas Pendientes
+            </h2>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {stats.cuotasPendientes} pendiente{stats.cuotasPendientes !== 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="space-y-3">
+            {stats.pendientes.slice(0, 5).map((pago) => {
+              const diasRestantes = getDiasHastaVencimiento(pago.fechaVencimiento);
+              const esUrgente = diasRestantes <= 7;
+              
+              return (
+                <div
+                  key={pago.id}
+                  className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
+                    esUrgente
+                      ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+                      : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+                  }`}
+                >
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          Cuota #{pago.numeroCuota}
+                        </span>
+                        {esUrgente && (
+                          <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" /> Próximo
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <p>{pago.auto.marca} {pago.auto.modelo} - {pago.auto.matricula}</p>
+                        <p className="mt-1">Vencimiento: {formatDate(pago.fechaVencimiento)}</p>
+                        <p className="mt-1 font-medium text-gray-700 dark:text-gray-300">
+                          {diasRestantes === 0 ? '¡Vence hoy!' : 
+                           diasRestantes === 1 ? '¡Vence mañana!' :
+                           diasRestantes < 0 ? `Vencido hace ${Math.abs(diasRestantes)} días` :
+                           `Faltan ${diasRestantes} días`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xl font-bold text-gray-900 dark:text-white">
+                        {formatCurrency(pago.monto)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {stats.cuotasPendientes > 5 && (
+              <p className="text-sm text-center text-gray-500 dark:text-gray-400 pt-2">
+                Mostrando 5 de {stats.cuotasPendientes} cuotas pendientes
+              </p>
+            )}
           </div>
         </div>
       )}

@@ -38,7 +38,7 @@ const Layout = () => {
         { to: '/reportes', icon: FileText, label: 'Reportes' },
       ]
     : [
-        { to: '/mi-dashboard', icon: TrendingUp, label: 'Mi Dashboard' },
+        { to: '/mi-dashboard', icon: TrendingUp, label: 'Mi Escritorio' },
         { to: '/pagos', icon: CreditCard, label: 'Mis Cuotas' },
         { to: '/historial', icon: History, label: 'Historial' },
       ];
