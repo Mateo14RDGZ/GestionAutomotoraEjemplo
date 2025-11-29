@@ -17,16 +17,27 @@ async function generateIcons() {
     const outputFile = path.join(outputDir, `icon-${size}.png`);
     
     try {
+      // Calcular padding para hacer el logo más grande (15% de padding en lugar de 20%)
+      const padding = Math.floor(size * 0.10); // 10% de padding para logo más grande
+      const logoSize = size - (padding * 2);
+      
       await sharp(inputFile)
-        .resize(size, size, {
+        .resize(logoSize, logoSize, {
           fit: 'contain',
-          background: { r: 255, g: 255, b: 255, alpha: 1 }
+          background: { r: 248, g: 249, b: 250, alpha: 1 } // Color de fondo del logo (gris muy claro)
         })
-        .flatten({ background: { r: 255, g: 255, b: 255 } })
+        .extend({
+          top: padding,
+          bottom: padding,
+          left: padding,
+          right: padding,
+          background: { r: 248, g: 249, b: 250 } // Mismo color de fondo
+        })
+        .flatten({ background: { r: 248, g: 249, b: 250 } })
         .png({ compressionLevel: 9, quality: 100 })
         .toFile(outputFile);
       
-      console.log(`✅ Generado: icon-${size}.png`);
+      console.log(`✅ Generado: icon-${size}.png (logo ${logoSize}x${logoSize})`);
     } catch (error) {
       console.error(`❌ Error generando icon-${size}.png:`, error.message);
     }
