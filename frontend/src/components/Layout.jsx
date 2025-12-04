@@ -132,7 +132,6 @@ const Layout = () => {
       {/* Mobile sidebar */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div 
           <div className="fixed inset-0 bg-gray-600 dark:bg-black bg-opacity-75 dark:bg-opacity-80"
             onClick={() => setSidebarOpen(false)}
           />
