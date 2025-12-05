@@ -605,6 +605,399 @@ app.get('/api/dashboard/stats', authenticateToken, requireAdmin, async (req, res
 
 // ==================== RUTAS DE UTILIDAD ====================
 
+// Setup automático de base de datos
+app.post('/api/setup', async (req, res) => {
+  try {
+    console.log('🔧 Iniciando setup de base de datos...');
+    
+    // Verificar si ya hay datos
+    const usuariosCount = await prisma.usuario.count();
+    if (usuariosCount > 0) {
+      return res.json({
+        success: true,
+        message: 'La base de datos ya tiene datos configurados',
+        usuarios: usuariosCount
+      });
+    }
+
+    console.log('📊 Base de datos vacía, creando datos iniciales...');
+
+    // Hash de contraseñas
+    const adminPasswordHash = await bcrypt.hash('admin123', 10);
+
+    // Crear usuarios administradores
+    await prisma.usuario.create({
+      data: { email: 'admin@demo.com', password: adminPasswordHash, rol: 'admin' }
+    });
+
+    await prisma.usuario.create({
+      data: { email: 'demo@demo.com', password: adminPasswordHash, rol: 'admin' }
+    });
+
+    // Crear clientes con sus usuarios
+    const cliente1 = await prisma.cliente.create({
+      data: {
+        nombre: 'Juan Pérez',
+        cedula: '12345678',
+        telefono: '099123456',
+        direccion: 'Av. Italia 1234',
+        email: 'juan.perez@email.com',
+        activo: true,
+      }
+    });
+
+    await prisma.usuario.create({
+      data: {
+        email: 'juan.perez@email.com',
+        password: await bcrypt.hash('12345678', 10),
+        rol: 'cliente',
+        clienteId: cliente1.id
+      }
+    });
+
+    const cliente2 = await prisma.cliente.create({
+      data: {
+        nombre: 'María González',
+        cedula: '87654321',
+        telefono: '099987654',
+        direccion: 'Bvar. Artigas 5678',
+        email: 'maria.gonzalez@email.com',
+        activo: true,
+      }
+    });
+
+    await prisma.usuario.create({
+      data: {
+        email: 'maria.gonzalez@email.com',
+        password: await bcrypt.hash('87654321', 10),
+        rol: 'cliente',
+        clienteId: cliente2.id
+      }
+    });
+
+    const cliente3 = await prisma.cliente.create({
+      data: {
+        nombre: 'Carlos Rodríguez',
+        cedula: '11223344',
+        telefono: '099111222',
+        direccion: 'Av. 18 de Julio 2345',
+        email: 'carlos.rodriguez@email.com',
+        activo: true,
+      }
+    });
+
+    await prisma.usuario.create({
+      data: {
+        email: 'carlos.rodriguez@email.com',
+        password: await bcrypt.hash('11223344', 10),
+        rol: 'cliente',
+        clienteId: cliente3.id
+      }
+    });
+
+    const cliente4 = await prisma.cliente.create({
+      data: {
+        nombre: 'Ana Martínez',
+        cedula: '55667788',
+        telefono: '099555666',
+        direccion: 'Colonia 3456',
+        email: 'ana.martinez@email.com',
+        activo: true,
+      }
+    });
+
+    await prisma.usuario.create({
+      data: {
+        email: 'ana.martinez@email.com',
+        password: await bcrypt.hash('55667788', 10),
+        rol: 'cliente',
+        clienteId: cliente4.id
+      }
+    });
+
+    // Crear autos
+    const auto1 = await prisma.auto.create({
+      data: {
+        marca: 'Toyota',
+        modelo: 'Corolla',
+        anio: 2020,
+        matricula: 'ABC1234',
+        precio: 25000,
+        estado: 'vendido',
+        clienteId: cliente1.id,
+        activo: true
+      }
+    });
+
+    const auto2 = await prisma.auto.create({
+      data: {
+        marca: 'Honda',
+        modelo: 'Civic',
+        anio: 2019,
+        matricula: 'DEF5678',
+        precio: 22000,
+        estado: 'vendido',
+        clienteId: cliente2.id,
+        activo: true
+      }
+    });
+
+    const auto3 = await prisma.auto.create({
+      data: {
+        marca: 'Ford',
+        modelo: 'Focus',
+        anio: 2021,
+        matricula: 'GHI9012',
+        precio: 20000,
+        estado: 'vendido',
+        clienteId: cliente3.id,
+        activo: true
+      }
+    });
+
+    const auto4 = await prisma.auto.create({
+      data: {
+        marca: 'Chevrolet',
+        modelo: 'Cruze',
+        anio: 2018,
+        matricula: 'JKL3456',
+        precio: 18000,
+        estado: 'vendido',
+        clienteId: cliente4.id,
+        activo: true
+      }
+    });
+
+    await prisma.auto.create({
+      data: {
+        marca: 'Volkswagen',
+        modelo: 'Golf',
+        anio: 2022,
+        matricula: 'MNO7890',
+        precio: 28000,
+        estado: 'disponible',
+        activo: true
+      }
+    });
+
+    await prisma.auto.create({
+      data: {
+        marca: 'Nissan',
+        modelo: 'Sentra',
+        anio: 2020,
+        matricula: 'PQR1234',
+        precio: 21000,
+        estado: 'disponible',
+        activo: true
+      }
+    });
+
+    // Crear pagos
+    const hoy = new Date();
+    const diaMes = 15;
+
+    // Pagos para auto1 (Juan Pérez)
+    await prisma.pago.createMany({
+      data: [
+        {
+          autoId: auto1.id,
+          numeroCuota: 1,
+          monto: 2500,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 2, diaMes),
+          estado: 'pendiente'
+        },
+        {
+          autoId: auto1.id,
+          numeroCuota: 2,
+          monto: 2500,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 1, diaMes),
+          estado: 'pendiente'
+        },
+        {
+          autoId: auto1.id,
+          numeroCuota: 3,
+          monto: 2500,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth(), diaMes),
+          estado: 'pendiente'
+        },
+        {
+          autoId: auto1.id,
+          numeroCuota: 4,
+          monto: 2500,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() + 1, diaMes),
+          estado: 'pendiente'
+        },
+        {
+          autoId: auto1.id,
+          numeroCuota: 5,
+          monto: 2500,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() + 2, diaMes),
+          estado: 'pendiente'
+        }
+      ]
+    });
+
+    // Pagos para auto2 (María González)
+    await prisma.pago.createMany({
+      data: [
+        {
+          autoId: auto2.id,
+          numeroCuota: 1,
+          monto: 2200,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 3, diaMes),
+          fechaPago: new Date(hoy.getFullYear(), hoy.getMonth() - 3, diaMes + 2),
+          estado: 'pagado'
+        },
+        {
+          autoId: auto2.id,
+          numeroCuota: 2,
+          monto: 2200,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 2, diaMes),
+          estado: 'pendiente'
+        },
+        {
+          autoId: auto2.id,
+          numeroCuota: 3,
+          monto: 2200,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 1, diaMes),
+          estado: 'pendiente'
+        },
+        {
+          autoId: auto2.id,
+          numeroCuota: 4,
+          monto: 2200,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth(), diaMes),
+          estado: 'pendiente'
+        },
+        {
+          autoId: auto2.id,
+          numeroCuota: 5,
+          monto: 2200,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() + 1, diaMes),
+          estado: 'pendiente'
+        }
+      ]
+    });
+
+    // Pagos para auto3 (Carlos Rodríguez) - Todas pagadas
+    await prisma.pago.createMany({
+      data: [
+        {
+          autoId: auto3.id,
+          numeroCuota: 1,
+          monto: 2000,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 4, diaMes),
+          fechaPago: new Date(hoy.getFullYear(), hoy.getMonth() - 4, diaMes - 1),
+          estado: 'pagado'
+        },
+        {
+          autoId: auto3.id,
+          numeroCuota: 2,
+          monto: 2000,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 3, diaMes),
+          fechaPago: new Date(hoy.getFullYear(), hoy.getMonth() - 3, diaMes - 1),
+          estado: 'pagado'
+        },
+        {
+          autoId: auto3.id,
+          numeroCuota: 3,
+          monto: 2000,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 2, diaMes),
+          fechaPago: new Date(hoy.getFullYear(), hoy.getMonth() - 2, diaMes - 1),
+          estado: 'pagado'
+        },
+        {
+          autoId: auto3.id,
+          numeroCuota: 4,
+          monto: 2000,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 1, diaMes),
+          fechaPago: new Date(hoy.getFullYear(), hoy.getMonth() - 1, diaMes - 1),
+          estado: 'pagado'
+        },
+        {
+          autoId: auto3.id,
+          numeroCuota: 5,
+          monto: 2000,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth(), diaMes),
+          fechaPago: new Date(hoy.getFullYear(), hoy.getMonth(), diaMes - 1),
+          estado: 'pagado'
+        }
+      ]
+    });
+
+    // Pagos para auto4 (Ana Martínez)
+    await prisma.pago.createMany({
+      data: [
+        {
+          autoId: auto4.id,
+          numeroCuota: 1,
+          monto: 1800,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 2, diaMes),
+          fechaPago: new Date(hoy.getFullYear(), hoy.getMonth() - 2, diaMes + 5),
+          estado: 'pagado'
+        },
+        {
+          autoId: auto4.id,
+          numeroCuota: 2,
+          monto: 1800,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() - 1, diaMes),
+          estado: 'pendiente'
+        },
+        {
+          autoId: auto4.id,
+          numeroCuota: 3,
+          monto: 1800,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth(), diaMes),
+          estado: 'pendiente'
+        },
+        {
+          autoId: auto4.id,
+          numeroCuota: 4,
+          monto: 1800,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() + 1, diaMes),
+          estado: 'pendiente'
+        },
+        {
+          autoId: auto4.id,
+          numeroCuota: 5,
+          monto: 1800,
+          fechaVencimiento: new Date(hoy.getFullYear(), hoy.getMonth() + 2, diaMes),
+          estado: 'pendiente'
+        }
+      ]
+    });
+
+    const totalUsuarios = await prisma.usuario.count();
+    const totalClientes = await prisma.cliente.count();
+    const totalAutos = await prisma.auto.count();
+    const totalPagos = await prisma.pago.count();
+
+    console.log('✅ Setup completado exitosamente');
+
+    res.json({
+      success: true,
+      message: 'Base de datos configurada correctamente',
+      data: {
+        usuarios: totalUsuarios,
+        clientes: totalClientes,
+        autos: totalAutos,
+        pagos: totalPagos
+      },
+      credentials: {
+        admin: 'admin@demo.com / admin123',
+        clientes: ['12345678', '87654321', '11223344', '55667788']
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error en setup:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error al configurar la base de datos',
+      details: error.message
+    });
+  }
+});
+
 app.get('/api/health', async (req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
