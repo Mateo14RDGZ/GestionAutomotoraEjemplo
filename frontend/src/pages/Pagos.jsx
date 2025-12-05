@@ -43,16 +43,11 @@ const Pagos = () => {
   });
 
   useEffect(() => {
-    loadInitialData();
+    // Detectar si viene con un filtro específico desde navegación
+    const initialFilter = location.state?.filterType || 'pendientes';
+    console.log('🎯 Filtro inicial:', initialFilter);
+    loadInitialData(initialFilter);
   }, []);
-
-  // Detectar navegación desde Reportes y aplicar filtro
-  useEffect(() => {
-    if (location.state?.filterType) {
-      console.log('📍 Navegación con filtro:', location.state.filterType);
-      handleFilter(location.state.filterType);
-    }
-  }, [location.state]);
 
   // Auto-refresh para clientes: actualizar datos cada 30 segundos
   useEffect(() => {
@@ -70,7 +65,7 @@ const Pagos = () => {
     }
   }, [user, filter]);
 
-  const loadInitialData = async () => {
+  const loadInitialData = async (initialFilter = 'pendientes') => {
     try {
       setLoading(true);
       
@@ -84,11 +79,11 @@ const Pagos = () => {
         setAutos(autosData.filter(auto => auto.estado !== 'disponible'));
         setClientes(clientesData);
         
-        // Aplicar el filtro inicial (pendientes por defecto)
-        await handleFilter('pendientes');
+        // Aplicar el filtro inicial (puede ser 'vencidos' si viene desde Reportes)
+        await handleFilter(initialFilter);
       } else {
         // Cargar datos para cliente - aplicar filtro inicial
-        await handleFilter('pendientes');
+        await handleFilter(initialFilter);
       }
     } catch (error) {
       console.error('Error al cargar datos:', error);
