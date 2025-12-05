@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { pagosService, autosService, clientesService } from '../services';
 import { useAuth } from '../context/AuthContext';
 import { CreditCard, Plus, AlertCircle, CheckCircle, Calendar, DollarSign, User, ChevronDown, ChevronUp, Car, RefreshCw } from 'lucide-react';
 
 const Pagos = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const [pagos, setPagos] = useState([]);
   const [autos, setAutos] = useState([]);
   const [clientes, setClientes] = useState([]);
@@ -43,6 +45,14 @@ const Pagos = () => {
   useEffect(() => {
     loadInitialData();
   }, []);
+
+  // Detectar navegación desde Reportes y aplicar filtro
+  useEffect(() => {
+    if (location.state?.filterType) {
+      console.log('📍 Navegación con filtro:', location.state.filterType);
+      handleFilter(location.state.filterType);
+    }
+  }, [location.state]);
 
   // Auto-refresh para clientes: actualizar datos cada 30 segundos
   useEffect(() => {

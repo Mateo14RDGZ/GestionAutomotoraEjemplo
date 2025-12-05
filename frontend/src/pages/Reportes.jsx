@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { autosService, clientesService, pagosService, dashboardService } from '../services';
 import { exportToCSV, exportToJSON, formatDataForExport } from '../utils/export';
 import { formatCurrency, formatDate } from '../utils/format';
@@ -18,6 +19,7 @@ import StatCard from '../components/StatCard';
 import { useToast } from '../context/ToastContext';
 
 const Reportes = () => {
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
@@ -782,7 +784,10 @@ const Reportes = () => {
           <p className="text-red-800 dark:text-red-300 mb-4">
             Tienes <strong>{stats.pagos.vencidos}</strong> cuotas vencidas que requieren seguimiento inmediato.
           </p>
-          <button className="btn btn-danger text-sm transition-all hover:scale-105 active:scale-95">
+          <button 
+            onClick={() => navigate('/pagos', { state: { filterType: 'vencidos' } })}
+            className="btn btn-danger text-sm transition-all hover:scale-105 active:scale-95"
+          >
             Ver Pagos Vencidos
           </button>
         </div>
