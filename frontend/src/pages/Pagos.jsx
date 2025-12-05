@@ -49,19 +49,16 @@ const Pagos = () => {
       
       if (user?.rol === 'admin') {
         // Cargar datos para admin
-        const [pagosData, autosData, clientesData] = await Promise.all([
-          pagosService.getAll({ estado: 'pendiente' }),
+        const [autosData, clientesData] = await Promise.all([
           autosService.getAll(),
           clientesService.getAll(),
         ]);
         
-        setPagos(pagosData);
         setAutos(autosData.filter(auto => auto.estado !== 'disponible'));
         setClientes(clientesData);
         
-        // Agrupar pagos por cliente - SIEMPRE con todos los pagos
-        const todosPagos = await pagosService.getAll({});
-        organizarPagosPorCliente(todosPagos, clientesData);
+        // Aplicar el filtro inicial (pendientes por defecto)
+        await handleFilter('pendientes');
       } else {
         // Cargar datos para cliente - solo pagos pendientes
         const pagosData = await pagosService.getAll({ estado: 'pendiente' });
@@ -144,7 +141,9 @@ const Pagos = () => {
       
       // Actualizar agrupación por cliente si es admin - usar los pagos FILTRADOS
       if (user?.rol === 'admin') {
-        organizarPagosPorCliente(data, clientes);
+        // Usar clientes del estado si ya están cargados
+        const clientesParaOrganizar = clientes.length > 0 ? clientes : await clientesService.getAll();
+        organizarPagosPorCliente(data, clientesParaOrganizar);
       }
     } catch (error) {
       console.error('Error al filtrar:', error);
