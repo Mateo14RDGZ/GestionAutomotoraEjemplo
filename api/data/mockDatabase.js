@@ -308,6 +308,27 @@ class MockDatabase {
         ) || null;
       },
 
+      findFirst: async (options) => {
+        const user = this.usuarios.find(u => {
+          if (options.where.id && u.id !== options.where.id) return false;
+          if (options.where.email && u.email !== options.where.email) return false;
+          return true;
+        });
+
+        if (!user) return null;
+
+        // Si se requiere incluir cliente
+        if (options.include?.cliente) {
+          const cliente = this.clientes.find(c => c.usuarioId === user.id);
+          return {
+            ...user,
+            cliente: cliente || null
+          };
+        }
+
+        return user;
+      },
+
       create: async (options) => {
         const hashedPassword = await bcrypt.hash(options.data.password, 10);
         const newUsuario = {
