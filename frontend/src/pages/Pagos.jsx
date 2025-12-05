@@ -60,9 +60,8 @@ const Pagos = () => {
         // Aplicar el filtro inicial (pendientes por defecto)
         await handleFilter('pendientes');
       } else {
-        // Cargar datos para cliente - solo pagos pendientes
-        const pagosData = await pagosService.getAll({ estado: 'pendiente' });
-        setPagos(pagosData);
+        // Cargar datos para cliente - aplicar filtro inicial
+        await handleFilter('pendientes');
       }
     } catch (error) {
       console.error('Error al cargar datos:', error);

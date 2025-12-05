@@ -209,7 +209,7 @@ const autos = [
 
 // Pagos de ejemplo
 const pagos = [
-  // Pagos de Juan Pérez (Cliente 1, Auto 2 - Honda Civic)
+  // Pagos de Juan Pérez (Cliente 1, Auto 2 - Honda Civic) - 6 cuotas
   {
     id: 1,
     clienteId: 1,
@@ -258,8 +258,32 @@ const pagos = [
     createdAt: new Date('2024-02-05'),
     updatedAt: new Date('2024-02-05')
   },
+  {
+    id: 13,
+    clienteId: 1,
+    autoId: 2,
+    numeroCuota: 5,
+    monto: 416.67,
+    fechaPago: null,
+    fechaVencimiento: new Date('2024-10-01'),
+    estado: 'pendiente',
+    createdAt: new Date('2024-02-05'),
+    updatedAt: new Date('2024-02-05')
+  },
+  {
+    id: 14,
+    clienteId: 1,
+    autoId: 2,
+    numeroCuota: 6,
+    monto: 416.67,
+    fechaPago: null,
+    fechaVencimiento: new Date('2024-11-01'),
+    estado: 'pendiente',
+    createdAt: new Date('2024-02-05'),
+    updatedAt: new Date('2024-02-05')
+  },
   
-  // Pagos de María González (Cliente 2, Auto 3 - Chevrolet Onix)
+  // Pagos de María González (Cliente 2, Auto 3 - Chevrolet Onix) - 5 cuotas
   {
     id: 5,
     clienteId: 2,
@@ -296,8 +320,32 @@ const pagos = [
     createdAt: new Date('2024-02-15'),
     updatedAt: new Date('2024-02-15')
   },
+  {
+    id: 15,
+    clienteId: 2,
+    autoId: 3,
+    numeroCuota: 4,
+    monto: 600,
+    fechaPago: null,
+    fechaVencimiento: new Date('2024-10-10'),
+    estado: 'pendiente',
+    createdAt: new Date('2024-02-15'),
+    updatedAt: new Date('2024-02-15')
+  },
+  {
+    id: 16,
+    clienteId: 2,
+    autoId: 3,
+    numeroCuota: 5,
+    monto: 600,
+    fechaPago: null,
+    fechaVencimiento: new Date('2024-11-10'),
+    estado: 'pendiente',
+    createdAt: new Date('2024-02-15'),
+    updatedAt: new Date('2024-02-15')
+  },
   
-  // Pagos de Carlos Rodríguez (Cliente 3, Auto 4 - VW Golf)
+  // Pagos de Carlos Rodríguez (Cliente 3, Auto 4 - VW Golf) - 4 cuotas
   {
     id: 8,
     clienteId: 3,
@@ -322,8 +370,32 @@ const pagos = [
     createdAt: new Date('2024-03-05'),
     updatedAt: new Date('2024-03-05')
   },
+  {
+    id: 17,
+    clienteId: 3,
+    autoId: 4,
+    numeroCuota: 3,
+    monto: 750,
+    fechaPago: null,
+    fechaVencimiento: new Date('2024-10-01'),
+    estado: 'pendiente',
+    createdAt: new Date('2024-03-05'),
+    updatedAt: new Date('2024-03-05')
+  },
+  {
+    id: 18,
+    clienteId: 3,
+    autoId: 4,
+    numeroCuota: 4,
+    monto: 750,
+    fechaPago: null,
+    fechaVencimiento: new Date('2024-11-01'),
+    estado: 'pendiente',
+    createdAt: new Date('2024-03-05'),
+    updatedAt: new Date('2024-03-05')
+  },
   
-  // Pagos de Ana Martínez (Cliente 4, Auto 5 - Ford Focus)
+  // Pagos de Ana Martínez (Cliente 4, Auto 5 - Ford Focus) - 5 cuotas
   {
     id: 10,
     clienteId: 4,
@@ -356,7 +428,31 @@ const pagos = [
     monto: 333.33,
     fechaPago: null,
     fechaVencimiento: new Date('2024-05-10'),
-    estado: 'vencido',
+    estado: 'pendiente',
+    createdAt: new Date('2024-03-15'),
+    updatedAt: new Date('2024-03-15')
+  },
+  {
+    id: 19,
+    clienteId: 4,
+    autoId: 5,
+    numeroCuota: 4,
+    monto: 333.33,
+    fechaPago: null,
+    fechaVencimiento: new Date('2024-10-10'),
+    estado: 'pendiente',
+    createdAt: new Date('2024-03-15'),
+    updatedAt: new Date('2024-03-15')
+  },
+  {
+    id: 20,
+    clienteId: 4,
+    autoId: 5,
+    numeroCuota: 5,
+    monto: 333.33,
+    fechaPago: null,
+    fechaVencimiento: new Date('2024-11-10'),
+    estado: 'pendiente',
     createdAt: new Date('2024-03-15'),
     updatedAt: new Date('2024-03-15')
   }
