@@ -70,7 +70,7 @@ const Pagos = () => {
     }
   };
 
-  const organizarPagosPorCliente = (pagosData, clientesData) => {
+  const organizarPagosPorCliente = (pagosData, clientesData, filtroActivo) => {
     const clientesMap = {};
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0); // Normalizar a inicio del día
@@ -85,36 +85,16 @@ const Pagos = () => {
         
         clientesMap[clienteId] = {
           cliente: cliente,
-          pagos: {
-            pendientes: [],
-            vencidos: [],
-            pagados: []
-          },
-          totales: {
-            pendientes: 0,
-            vencidos: 0,
-            pagados: 0
-          }
+          pagos: [], // Solo guardar pagos del filtro actual
+          total: 0,
+          count: 0
         };
       }
       
-      // Clasificar pago con lógica inline
-      if (pago.estado === 'pagado') {
-        clientesMap[clienteId].pagos.pagados.push(pago);
-        clientesMap[clienteId].totales.pagados += parseFloat(pago.monto);
-      } else {
-        // Verificar si está vencido
-        const fechaVencimiento = new Date(pago.fechaVencimiento);
-        fechaVencimiento.setHours(0, 0, 0, 0);
-        
-        if (fechaVencimiento < hoy) {
-          clientesMap[clienteId].pagos.vencidos.push(pago);
-          clientesMap[clienteId].totales.vencidos += parseFloat(pago.monto);
-        } else {
-          clientesMap[clienteId].pagos.pendientes.push(pago);
-          clientesMap[clienteId].totales.pendientes += parseFloat(pago.monto);
-        }
-      }
+      // Agregar pago al cliente (ya viene filtrado del backend)
+      clientesMap[clienteId].pagos.push(pago);
+      clientesMap[clienteId].total += parseFloat(pago.monto);
+      clientesMap[clienteId].count++;
     });
     
     setClientesConPagos(Object.values(clientesMap));
@@ -142,7 +122,7 @@ const Pagos = () => {
       if (user?.rol === 'admin') {
         // Usar clientes del estado si ya están cargados
         const clientesParaOrganizar = clientes.length > 0 ? clientes : await clientesService.getAll();
-        organizarPagosPorCliente(data, clientesParaOrganizar);
+        organizarPagosPorCliente(data, clientesParaOrganizar, filterType);
       }
     } catch (error) {
       console.error('Error al filtrar:', error);
@@ -476,32 +456,22 @@ const Pagos = () => {
                     
                     {/* Resumen de pagos - Responsive */}
                     <div className="flex flex-wrap md:flex-nowrap gap-3 md:gap-6 justify-start md:justify-end">
-                      {clienteData.totales.vencidos > 0 && (
-                        <div className="text-center">
-                          <div className="text-xl md:text-2xl font-bold text-red-600 dark:text-red-400">
-                            {formatCurrency(clienteData.totales.vencidos)}
-                          </div>
-                          <div className="text-xs text-red-600 dark:text-red-400 font-medium uppercase whitespace-nowrap">
-                            Vencidos ({clienteData.pagos.vencidos.length})
-                          </div>
-                        </div>
-                      )}
-                      {clienteData.totales.pendientes > 0 && (
-                        <div className="text-center">
-                          <div className="text-xl md:text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                            {formatCurrency(clienteData.totales.pendientes)}
-                          </div>
-                          <div className="text-xs text-yellow-600 dark:text-yellow-400 font-medium uppercase whitespace-nowrap">
-                            Pendientes ({clienteData.pagos.pendientes.length})
-                          </div>
-                        </div>
-                      )}
                       <div className="text-center">
-                        <div className="text-xl md:text-2xl font-bold text-green-600 dark:text-green-400">
-                          {formatCurrency(clienteData.totales.pagados)}
+                        <div className={`text-xl md:text-2xl font-bold ${
+                          filter === 'vencidos' ? 'text-red-600 dark:text-red-400' :
+                          filter === 'pagados' ? 'text-green-600 dark:text-green-400' :
+                          'text-yellow-600 dark:text-yellow-400'
+                        }`}>
+                          {formatCurrency(clienteData.total)}
                         </div>
-                        <div className="text-xs text-green-600 dark:text-green-400 font-medium uppercase whitespace-nowrap">
-                          Pagados ({clienteData.pagos.pagados.length})
+                        <div className={`text-xs font-medium uppercase whitespace-nowrap ${
+                          filter === 'vencidos' ? 'text-red-600 dark:text-red-400' :
+                          filter === 'pagados' ? 'text-green-600 dark:text-green-400' :
+                          'text-yellow-600 dark:text-yellow-400'
+                        }`}>
+                          {filter === 'vencidos' ? 'Vencidos' : 
+                           filter === 'pagados' ? 'Pagados' : 
+                           'Pendientes'} ({clienteData.count})
                         </div>
                       </div>
                     </div>
@@ -515,85 +485,91 @@ const Pagos = () => {
                     <div>
                       <h4 className="text-xs md:text-sm font-bold text-gray-900 dark:text-white uppercase mb-3 flex items-center gap-2">
                         <CreditCard className="w-4 h-4" />
-                        {filter === 'vencidos' && `Cuotas Vencidas (${clienteData.pagos.vencidos.length})`}
-                        {filter === 'pagados' && `Cuotas Pagadas (${clienteData.pagos.pagados.length})`}
-                        {filter === 'pendientes' && `Cuotas Pendientes (${clienteData.pagos.pendientes.length})`}
-                        {(!filter || filter === 'todos') && `Todas las Cuotas (${clienteData.pagos.vencidos.length + clienteData.pagos.pendientes.length + clienteData.pagos.pagados.length})`}
+                        {filter === 'vencidos' && `Cuotas Vencidas (${clienteData.count})`}
+                        {filter === 'pagados' && `Cuotas Pagadas (${clienteData.count})`}
+                        {filter === 'pendientes' && `Cuotas Pendientes (${clienteData.count})`}
+                        {(!filter || filter === 'todos') && `Todas las Cuotas (${clienteData.count})`}
                       </h4>
                       <div className="space-y-2">
-                        {/* Mostrar todas las cuotas (ya vienen filtradas desde el backend) */}
-                        {[...clienteData.pagos.vencidos, ...clienteData.pagos.pendientes, ...clienteData.pagos.pagados]
-                          .sort((a, b) => a.numeroCuota - b.numeroCuota)
-                          .map(pago => {
-                            const esVencido = pago.estado !== 'pagado' && new Date(pago.fechaVencimiento) < new Date();
-                            const esPagado = pago.estado === 'pagado';
-                            
-                            return (
-                              <div 
-                                key={pago.id} 
-                                className={`rounded-lg p-2.5 md:p-4 hover:shadow-md transition-shadow border-2 ${
-                                  esPagado 
-                                    ? 'bg-white dark:bg-gray-800 border-green-200 dark:border-green-900' 
-                                    : esVencido
-                                    ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900'
-                                    : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-900'
-                                }`}
-                              >
-                                <div className="flex flex-col gap-2.5 md:gap-3">
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <div className="font-medium text-gray-900 dark:text-white text-sm md:text-base break-words">
-                                        {pago.auto.marca} {pago.auto.modelo} - Cuota #{pago.numeroCuota}
+                        {/* Mostrar solo las cuotas del filtro activo (ya vienen filtradas desde el backend) */}
+                        {clienteData.pagos.length === 0 ? (
+                          <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                            No hay cuotas para mostrar
+                          </div>
+                        ) : (
+                          clienteData.pagos
+                            .sort((a, b) => a.numeroCuota - b.numeroCuota)
+                            .map(pago => {
+                              const esVencido = pago.estado !== 'pagado' && new Date(pago.fechaVencimiento) < new Date();
+                              const esPagado = pago.estado === 'pagado';
+                              
+                              return (
+                                <div 
+                                  key={pago.id} 
+                                  className={`rounded-lg p-2.5 md:p-4 hover:shadow-md transition-shadow border-2 ${
+                                    esPagado 
+                                      ? 'bg-white dark:bg-gray-800 border-green-200 dark:border-green-900' 
+                                      : esVencido
+                                      ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900'
+                                      : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-900'
+                                  }`}
+                                >
+                                  <div className="flex flex-col gap-2.5 md:gap-3">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <div className="font-medium text-gray-900 dark:text-white text-sm md:text-base break-words">
+                                          {pago.auto.marca} {pago.auto.modelo} - Cuota #{pago.numeroCuota}
+                                        </div>
+                                        {esPagado && (
+                                          <span className="badge badge-success text-xs flex items-center gap-1">
+                                            <CheckCircle className="w-3 h-3" /> PAGADO
+                                          </span>
+                                        )}
+                                        {esVencido && (
+                                          <span className="badge badge-danger text-xs flex items-center gap-1">
+                                            <AlertCircle className="w-3 h-3" /> VENCIDO
+                                          </span>
+                                        )}
+                                        {!esPagado && !esVencido && (
+                                          <span className="badge badge-warning text-xs flex items-center gap-1">
+                                            <Calendar className="w-3 h-3" /> PENDIENTE
+                                          </span>
+                                        )}
                                       </div>
-                                      {esPagado && (
-                                        <span className="badge badge-success text-xs flex items-center gap-1">
-                                          <CheckCircle className="w-3 h-3" /> PAGADO
-                                        </span>
+                                      <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1 break-words">
+                                        Matrícula: {pago.auto.matricula}
+                                      </div>
+                                      <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+                                        {esPagado 
+                                          ? `Pagado: ${formatDate(pago.fechaPago)}`
+                                          : `Vencimiento: ${formatDate(pago.fechaVencimiento)}`
+                                        }
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-3">
+                                      <div className={`text-lg md:text-xl font-bold ${
+                                        esPagado 
+                                          ? 'text-green-600 dark:text-green-400' 
+                                          : esVencido
+                                          ? 'text-red-700 dark:text-red-400'
+                                          : 'text-yellow-700 dark:text-yellow-400'
+                                      }`}>
+                                        {formatCurrency(pago.monto)}
+                                      </div>
+                                      {!esPagado && (
+                                        <button
+                                          onClick={() => handleMarcarPagado(pago.id)}
+                                          className="btn btn-success btn-sm whitespace-nowrap text-xs px-3 py-1.5"
+                                        >
+                                          Marcar Pagado
+                                        </button>
                                       )}
-                                      {esVencido && (
-                                        <span className="badge badge-danger text-xs flex items-center gap-1">
-                                          <AlertCircle className="w-3 h-3" /> VENCIDO
-                                        </span>
-                                      )}
-                                      {!esPagado && !esVencido && (
-                                        <span className="badge badge-warning text-xs flex items-center gap-1">
-                                          <Calendar className="w-3 h-3" /> PENDIENTE
-                                        </span>
-                                      )}
                                     </div>
-                                    <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1 break-words">
-                                      Matrícula: {pago.auto.matricula}
-                                    </div>
-                                    <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
-                                      {esPagado 
-                                        ? `Pagado: ${formatDate(pago.fechaPago)}`
-                                        : `Vencimiento: ${formatDate(pago.fechaVencimiento)}`
-                                      }
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center justify-between gap-3">
-                                    <div className={`text-lg md:text-xl font-bold ${
-                                      esPagado 
-                                        ? 'text-green-600 dark:text-green-400' 
-                                        : esVencido
-                                        ? 'text-red-700 dark:text-red-400'
-                                        : 'text-yellow-700 dark:text-yellow-400'
-                                    }`}>
-                                      {formatCurrency(pago.monto)}
-                                    </div>
-                                    {!esPagado && (
-                                      <button
-                                        onClick={() => handleMarcarPagado(pago.id)}
-                                        className="btn btn-success btn-sm whitespace-nowrap text-xs px-3 py-1.5"
-                                      >
-                                        Marcar Pagado
-                                      </button>
-                                    )}
                                   </div>
                                 </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })
+                        )}
                       </div>
                     </div>
                   </div>
