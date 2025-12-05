@@ -4,10 +4,9 @@
   "outputDirectory": "frontend/dist",
   "installCommand": "npm run install:vercel",
   "functions": {
-    "api/index.js": {
+    "api/server.js": {
       "maxDuration": 10,
-      "memory": 1024,
-      "includeFiles": "api/**"
+      "memory": 1024
     }
   },
   "env": {
@@ -55,7 +54,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/api/server.js"
     },
     {
       "source": "/(.*)",
