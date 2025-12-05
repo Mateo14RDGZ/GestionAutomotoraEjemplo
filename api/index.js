@@ -150,21 +150,28 @@ app.post('/api/auth/login-cliente', [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Errores de validación:', errors.array());
       return res.status(400).json({ error: 'Datos inválidos', details: errors.array() });
     }
 
     const { cedula } = req.body;
+    console.log('Intentando login de cliente con cédula:', cedula);
 
     const cliente = await prisma.cliente.findFirst({
       where: { cedula },
       include: { usuario: true }
     });
 
+    console.log('Cliente encontrado:', cliente ? `${cliente.nombre} (ID: ${cliente.id})` : 'No encontrado');
+    console.log('Usuario asociado:', cliente?.usuario ? `Email: ${cliente.usuario.email}, Rol: ${cliente.usuario.rol}` : 'No encontrado');
+
     if (!cliente || !cliente.usuario) {
       return res.status(401).json({ error: 'Cliente no encontrado o sin acceso' });
     }
 
     const validPassword = await bcrypt.compare(cedula, cliente.usuario.password);
+    console.log('Contraseña válida:', validPassword);
+    
     if (!validPassword) {
       return res.status(401).json({ error: 'Cédula incorrecta' });
     }
