@@ -1,14 +1,20 @@
 // Service Worker para PWA - RV Automóviles
-const CACHE_NAME = 'rv-autos-v6';
-const CACHE_VERSION = '6.0.0';
+const CACHE_NAME = 'rv-autos-v7';
+const CACHE_VERSION = '7.0.0';
 
 // Archivos esenciales que se cachearán durante la instalación
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/icon-192.svg',
+  '/icon-512.svg',
+  '/icon-72.svg',
+  '/icon-96.svg',
+  '/icon-128.svg',
+  '/icon-144.svg',
+  '/icon-152.svg',
+  '/icon-384.svg'
 ];
 
 // Instalación del Service Worker
@@ -19,7 +25,15 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[SW] Cacheando archivos estáticos');
-        return cache.addAll(STATIC_ASSETS);
+        // Usar addAll con manejo de errores individual
+        return Promise.allSettled(
+          STATIC_ASSETS.map(url => 
+            cache.add(url).catch(err => {
+              console.warn('[SW] No se pudo cachear:', url, err);
+              return null;
+            })
+          )
+        );
       })
       .then(() => {
         console.log('[SW] Instalación completada');
