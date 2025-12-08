@@ -6,7 +6,9 @@
     "dev": "vite",
     "build": "vite build --mode production",
     "preview": "vite preview",
-    "vercel-build": "vite build --mode production"
+    "vercel-build": "vite build --mode production",
+    "generate-icons": "node generate-icons-from-image.js",
+    "validate-pwa": "node validate-pwa.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.1",
