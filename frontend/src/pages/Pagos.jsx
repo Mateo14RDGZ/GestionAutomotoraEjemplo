@@ -92,6 +92,20 @@ const Pagos = () => {
     }
   };
 
+  // Filtrar autos que NO tienen planes de cuotas (sin pagos asociados)
+  const getAutosSinPlanDeCuotas = () => {
+    return autos.filter(auto => {
+      // Debe tener un cliente asignado
+      if (!auto.clienteId) {
+        return false;
+      }
+      
+      // No debe tener pagos asociados
+      const tienePagos = auto.pagos && auto.pagos.length > 0;
+      return !tienePagos;
+    });
+  };
+
   const organizarPagosPorCliente = (pagosData, clientesData, filtroActivo) => {
     const clientesMap = {};
     const hoy = new Date();
@@ -969,7 +983,7 @@ const Pagos = () => {
                     required
                     value={generateData.autoId}
                     onChange={(e) => {
-                      const selectedAuto = autos.find(a => a.id === parseInt(e.target.value));
+                      const selectedAuto = getAutosSinPlanDeCuotas().find(a => a.id === parseInt(e.target.value));
                       setGenerateData({ 
                         ...generateData, 
                         autoId: e.target.value,
@@ -979,12 +993,15 @@ const Pagos = () => {
                     className="input w-full"
                   >
                     <option value="">Seleccione un auto...</option>
-                    {autos.map((auto) => (
+                    {getAutosSinPlanDeCuotas().map((auto) => (
                       <option key={auto.id} value={auto.id}>
                         {auto.marca} {auto.modelo} • {auto.cliente?.nombre} • ${auto.precio.toLocaleString()}
                       </option>
                     ))}
                   </select>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Solo se muestran autos con cliente asignado y sin plan de cuotas activo
+                  </p>
                 </div>
 
                 {/* Sección 2: Detalles Financieros */}

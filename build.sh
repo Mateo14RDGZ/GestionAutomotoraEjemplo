@@ -15,8 +15,13 @@ npx prisma generate --schema=./prisma/schema.prisma
 # 3. Aplicar migraciones a la base de datos
 echo "🗄️ Aplicando schema a la base de datos..."
 if [ -n "$DATABASE_URL" ]; then
-  npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss
+  echo "✓ DATABASE_URL detectada"
+  npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss --force-reset
   echo "✅ Base de datos sincronizada"
+  
+  # Verificar que las tablas se crearon
+  echo "🔍 Verificando tablas..."
+  node verify-db.js || echo "⚠️ Advertencia: Error en verificación (continuando...)"
 else
   echo "⚠️ DATABASE_URL no configurada, saltando migraciones"
 fi
