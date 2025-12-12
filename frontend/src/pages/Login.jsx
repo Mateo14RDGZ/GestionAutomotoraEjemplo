@@ -244,8 +244,8 @@ const Login = () => {
                     </h4>
                     <div className="space-y-1 text-xs text-gray-700 dark:text-gray-400">
                       <p><span className="font-medium">Juan Pérez:</span> 12345678</p>
-                      <p><span className="font-medium">María González:</span> 87654321</p>
-                      <p><span className="font-medium">Carlos Rodríguez:</span> 11223344</p>
+                      <p><span className="font-medium">María González:</span> 23456789</p>
+                      <p><span className="font-medium">Carlos Rodríguez:</span> 34567890</p>
                     </div>
                   </div>
 
