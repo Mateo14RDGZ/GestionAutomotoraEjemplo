@@ -240,12 +240,28 @@ const Pagos = () => {
         montoPorCuota: parseFloat(generateData.montoCuota),
         fechaPrimeraCuota: generateData.fechaInicio
       };
+
+      // Agregar datos de permuta si existen
+      if (generateData.tienePermuta) {
+        dataParaBackend.permuta = {
+          tienePermuta: generateData.tienePermuta,
+          tipoPermuta: generateData.tipoPermuta,
+          permutaAuto: generateData.tipoPermuta === 'auto' ? generateData.permutaAuto : null,
+          permutaMoto: generateData.tipoPermuta === 'moto' ? generateData.permutaMoto : null,
+          permutaOtros: generateData.tipoPermuta === 'otros' ? generateData.permutaOtros : null
+        };
+      }
       
       console.log('🚀 Generando plan de cuotas:', dataParaBackend);
       
-      await pagosService.generarCuotas(dataParaBackend);
+      const response = await pagosService.generarCuotas(dataParaBackend);
       
       console.log('✅ Plan de cuotas generado exitosamente');
+      
+      // Mostrar mensaje si se agregó auto de permuta
+      if (response && response.autoPermuta && response.autoPermuta.agregado) {
+        alert(`✅ Plan de cuotas creado exitosamente.\n\n🚗 Auto de permuta agregado al catálogo:\n${response.autoPermuta.marca} ${response.autoPermuta.modelo}`);
+      }
       
       setShowGenerateModal(false);
       resetGenerateForm();

@@ -673,9 +673,18 @@ app.get('/api/pagos/:id', authenticateToken, async (req, res) => {
 
 app.post('/api/pagos/generar-cuotas', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const { autoId, numeroCuotas, montoPorCuota, fechaPrimeraCuota } = req.body;
+    const { 
+      autoId, 
+      numeroCuotas, 
+      montoPorCuota, 
+      fechaPrimeraCuota,
+      permuta // Datos de la permuta
+    } = req.body;
 
     console.log('💳 Generando plan de cuotas:', { autoId, numeroCuotas, montoPorCuota, fechaPrimeraCuota });
+    if (permuta) {
+      console.log('🔄 Permuta detectada:', permuta);
+    }
 
     const auto = await prisma.auto.findUnique({ 
       where: { id: parseInt(autoId) },
@@ -688,6 +697,39 @@ app.post('/api/pagos/generar-cuotas', authenticateToken, requireAdmin, async (re
     }
 
     console.log('✅ Auto encontrado:', { id: auto.id, marca: auto.marca, modelo: auto.modelo, cliente: auto.cliente?.nombre });
+
+    // Procesar permuta si existe y es de tipo auto con agregarCatalogo marcado
+    let autoPermutaCreado = null;
+    if (permuta && permuta.tienePermuta && permuta.tipoPermuta === 'auto' && permuta.permutaAuto && permuta.permutaAuto.agregarCatalogo) {
+      const { marca, modelo, anio, matricula, precio } = permuta.permutaAuto;
+      
+      if (marca && modelo && anio && precio) {
+        console.log('🚗 Agregando auto de permuta al catálogo...');
+        
+        try {
+          autoPermutaCreado = await prisma.auto.create({
+            data: {
+              marca: marca.trim(),
+              modelo: modelo.trim(),
+              anio: parseInt(anio),
+              matricula: matricula ? matricula.trim() : '0KM',
+              precio: parseFloat(precio),
+              estado: 'disponible',
+              activo: true
+            }
+          });
+          
+          console.log('✅ Auto de permuta agregado al catálogo:', {
+            id: autoPermutaCreado.id,
+            marca: autoPermutaCreado.marca,
+            modelo: autoPermutaCreado.modelo
+          });
+        } catch (permutaError) {
+          console.error('⚠️ Error al agregar auto de permuta:', permutaError);
+          // No detenemos el proceso, solo registramos el error
+        }
+      }
+    }
 
     const pagos = [];
     for (let i = 1; i <= numeroCuotas; i++) {
@@ -718,7 +760,18 @@ app.post('/api/pagos/generar-cuotas', authenticateToken, requireAdmin, async (re
 
     console.log('✅ Auto marcado como vendido');
 
-    res.status(201).json(createdPagos);
+    // Preparar respuesta incluyendo info de la permuta si se creó
+    const response = {
+      pagos: createdPagos,
+      autoPermuta: autoPermutaCreado ? {
+        id: autoPermutaCreado.id,
+        marca: autoPermutaCreado.marca,
+        modelo: autoPermutaCreado.modelo,
+        agregado: true
+      } : null
+    };
+
+    res.status(201).json(response);
   } catch (error) {
     console.error('❌ Error generando cuotas:', error);
     res.status(500).json({ error: 'Error al generar cuotas', details: error.message });
