@@ -843,6 +843,27 @@ app.put('/api/pagos/:id', authenticateToken, async (req, res) => {
     });
 
     console.log('✅ Pago actualizado:', pago);
+
+    // Si se marcó como pagado, verificar si todas las cuotas están pagadas
+    if (updateData.estado === 'pagado' && pago.autoId) {
+      const todosPagos = await prisma.pago.findMany({
+        where: { autoId: pago.autoId }
+      });
+
+      const todosCompletados = todosPagos.every(p => p.estado === 'pagado');
+
+      if (todosCompletados) {
+        console.log('🎉 Todas las cuotas pagadas! Eliminando auto del catálogo:', pago.autoId);
+        
+        // Eliminar el auto del catálogo
+        await prisma.auto.delete({
+          where: { id: pago.autoId }
+        });
+
+        console.log('✅ Auto eliminado del catálogo exitosamente');
+      }
+    }
+
     res.json(pago);
   } catch (error) {
     console.error('❌ Error actualizando pago:', error);

@@ -19,12 +19,13 @@ CREATE TABLE "Permuta" (
     "fechaRecepcion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "Permuta_pkey" PRIMARY KEY ("id")
 );
 
 -- AddForeignKey
-ALTER TABLE "Permuta" ADD CONSTRAINT "Permuta_clienteId_fkey" FOREIGN KEY ("clienteId") REFERENCES "Cliente"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Permuta"
+ADD CONSTRAINT "Permuta_clienteId_fkey" FOREIGN KEY ("clienteId") REFERENCES "Cliente" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Permuta" ADD CONSTRAINT "Permuta_autoVendidoId_fkey" FOREIGN KEY ("autoVendidoId") REFERENCES "Auto"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Permuta"
+ADD CONSTRAINT "Permuta_autoVendidoId_fkey" FOREIGN KEY ("autoVendidoId") REFERENCES "Auto" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
