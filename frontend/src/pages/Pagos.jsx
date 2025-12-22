@@ -1183,28 +1183,11 @@ const Pagos = () => {
 
                 {/* Sección de Permutas */}
                 <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-300 dark:border-gray-600">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                      Permutas
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => setGenerateData({ 
-                        ...generateData, 
-                        permutaAbierta: !generateData.permutaAbierta 
-                      })}
-                      className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-                    >
-                      {generateData.permutaAbierta ? (
-                        <ChevronUp className="w-5 h-5" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5" />
-                      )}
-                    </button>
-                  </div>
+                  <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
+                    Permutas
+                  </h3>
 
-                  {generateData.permutaAbierta && (
-                    <div className="space-y-4 animate-fade-in">
+                  <div className="space-y-4">
                       {/* Checkbox para indicar si hay permuta */}
                       <label className="flex items-center gap-3 cursor-pointer">
                         <input
@@ -1501,8 +1484,7 @@ const Pagos = () => {
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
+                  </div>
 
                 {/* Sección 3: Configuración de Cuotas */}
                 <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-300 dark:border-gray-600">
