@@ -637,7 +637,15 @@ app.get('/api/pagos', authenticateToken, async (req, res) => {
     const pagos = await prisma.pago.findMany({
       where,
       include: {
-        auto: { include: { cliente: true } }
+        auto: { 
+          include: { 
+            cliente: true,
+            permutas: {
+              orderBy: { createdAt: 'desc' },
+              take: 1
+            }
+          } 
+        }
       },
       orderBy: [
         { fechaVencimiento: 'asc' },
@@ -657,7 +665,17 @@ app.get('/api/pagos/:id', authenticateToken, async (req, res) => {
   try {
     const pago = await prisma.pago.findUnique({
       where: { id: parseInt(req.params.id) },
-      include: { auto: { include: { cliente: true } } }
+      include: { 
+        auto: { 
+          include: { 
+            cliente: true,
+            permutas: {
+              orderBy: { createdAt: 'desc' },
+              take: 1
+            }
+          } 
+        } 
+      }
     });
 
     if (!pago) {
@@ -673,7 +691,7 @@ app.get('/api/pagos/:id', authenticateToken, async (req, res) => {
 
 app.post('/api/pagos/generar-cuotas', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const { autoId, numeroCuotas, montoPorCuota, fechaPrimeraCuota } = req.body;
+    const { autoId, numeroCuotas, montoPorCuota, fechaPrimeraCuota, permuta } = req.body;
 
     console.log('💳 Generando plan de cuotas:', { autoId, numeroCuotas, montoPorCuota, fechaPrimeraCuota });
 
@@ -687,7 +705,54 @@ app.post('/api/pagos/generar-cuotas', authenticateToken, requireAdmin, async (re
       return res.status(404).json({ error: 'Auto no encontrado', autoId: autoId });
     }
 
+    if (!auto.clienteId) {
+      return res.status(400).json({ error: 'El auto debe tener un cliente asignado' });
+    }
+
     console.log('✅ Auto encontrado:', { id: auto.id, marca: auto.marca, modelo: auto.modelo, cliente: auto.cliente?.nombre });
+
+    // Guardar permuta si existe
+    let permutaCreada = null;
+    if (permuta && permuta.tienePermuta && permuta.tipoPermuta) {
+      console.log('🔄 Guardando permuta...');
+      
+      const permutaData = {
+        tipo: permuta.tipoPermuta,
+        valorEstimado: 0,
+        clienteId: auto.clienteId,
+        autoVendidoId: parseInt(autoId),
+        estado: 'pendiente'
+      };
+
+      // Agregar datos según el tipo
+      if (permuta.tipoPermuta === 'auto' && permuta.permutaAuto) {
+        permutaData.autoMarca = permuta.permutaAuto.marca || null;
+        permutaData.autoModelo = permuta.permutaAuto.modelo || null;
+        permutaData.autoAnio = permuta.permutaAuto.anio ? parseInt(permuta.permutaAuto.anio) : null;
+        permutaData.autoMatricula = permuta.permutaAuto.matricula || null;
+        permutaData.valorEstimado = permuta.permutaAuto.precio ? parseFloat(permuta.permutaAuto.precio) : 0;
+        permutaData.descripcion = `${permuta.permutaAuto.marca} ${permuta.permutaAuto.modelo} ${permuta.permutaAuto.anio}`;
+      } else if (permuta.tipoPermuta === 'moto' && permuta.permutaMoto) {
+        permutaData.motoMarca = permuta.permutaMoto.marca || null;
+        permutaData.motoModelo = permuta.permutaMoto.modelo || null;
+        permutaData.motoAnio = permuta.permutaMoto.anio ? parseInt(permuta.permutaMoto.anio) : null;
+        permutaData.valorEstimado = permuta.permutaMoto.precio ? parseFloat(permuta.permutaMoto.precio) : 0;
+        permutaData.descripcion = `${permuta.permutaMoto.marca} ${permuta.permutaMoto.modelo} ${permuta.permutaMoto.anio}`;
+      } else if (permuta.tipoPermuta === 'otros' && permuta.permutaOtros) {
+        permutaData.descripcion = permuta.permutaOtros.descripcion || '';
+        permutaData.valorEstimado = permuta.permutaOtros.precio ? parseFloat(permuta.permutaOtros.precio) : 0;
+      }
+
+      try {
+        permutaCreada = await prisma.permuta.create({
+          data: permutaData
+        });
+        console.log('✅ Permuta guardada:', permutaCreada.id);
+      } catch (permutaError) {
+        console.error('⚠️ Error al guardar permuta:', permutaError);
+        // Continuamos con el proceso aunque falle la permuta
+      }
+    }
 
     const pagos = [];
     for (let i = 1; i <= numeroCuotas; i++) {
@@ -718,7 +783,17 @@ app.post('/api/pagos/generar-cuotas', authenticateToken, requireAdmin, async (re
 
     console.log('✅ Auto marcado como vendido');
 
-    res.status(201).json(createdPagos);
+    const response = {
+      pagos: createdPagos,
+      permuta: permutaCreada ? {
+        id: permutaCreada.id,
+        tipo: permutaCreada.tipo,
+        valorEstimado: permutaCreada.valorEstimado,
+        guardada: true
+      } : null
+    };
+
+    res.status(201).json(response);
   } catch (error) {
     console.error('❌ Error generando cuotas:', error);
     res.status(500).json({ error: 'Error al generar cuotas', details: error.message });
@@ -785,6 +860,121 @@ app.delete('/api/pagos/:id', authenticateToken, requireAdmin, async (req, res) =
   } catch (error) {
     console.error('Error eliminando pago:', error);
     res.status(500).json({ error: 'Error al eliminar pago' });
+  }
+});
+
+// ==================== RUTAS DE PERMUTAS ====================
+
+// Obtener todas las permutas
+app.get('/api/permutas', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const permutas = await prisma.permuta.findMany({
+      include: {
+        cliente: true,
+        autoVendido: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    res.json(permutas);
+  } catch (error) {
+    console.error('Error obteniendo permutas:', error);
+    res.status(500).json({ error: 'Error al obtener permutas' });
+  }
+});
+
+// Obtener permuta por ID
+app.get('/api/permutas/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const permuta = await prisma.permuta.findUnique({
+      where: { id: parseInt(req.params.id) },
+      include: {
+        cliente: true,
+        autoVendido: true
+      }
+    });
+
+    if (!permuta) {
+      return res.status(404).json({ error: 'Permuta no encontrada' });
+    }
+
+    res.json(permuta);
+  } catch (error) {
+    console.error('Error obteniendo permuta:', error);
+    res.status(500).json({ error: 'Error al obtener permuta' });
+  }
+});
+
+// Obtener permutas por auto
+app.get('/api/permutas/auto/:autoId', authenticateToken, async (req, res) => {
+  try {
+    const permutas = await prisma.permuta.findMany({
+      where: { autoVendidoId: parseInt(req.params.autoId) },
+      include: {
+        cliente: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    res.json(permutas);
+  } catch (error) {
+    console.error('Error obteniendo permutas del auto:', error);
+    res.status(500).json({ error: 'Error al obtener permutas' });
+  }
+});
+
+// Actualizar permuta
+app.put('/api/permutas/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const permuta = await prisma.permuta.update({
+      where: { id: parseInt(req.params.id) },
+      data: req.body,
+      include: {
+        cliente: true,
+        autoVendido: true
+      }
+    });
+
+    res.json(permuta);
+  } catch (error) {
+    console.error('Error actualizando permuta:', error);
+    res.status(500).json({ error: 'Error al actualizar permuta' });
+  }
+});
+
+// Estadísticas de permutas
+app.get('/api/permutas/stats/resumen', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const totalPermutas = await prisma.permuta.count();
+    
+    const permutasPorTipo = await prisma.permuta.groupBy({
+      by: ['tipo'],
+      _count: true
+    });
+
+    const valorTotalEstimado = await prisma.permuta.aggregate({
+      _sum: {
+        valorEstimado: true
+      }
+    });
+
+    const permutasPendientes = await prisma.permuta.count({
+      where: { estado: 'pendiente' }
+    });
+
+    res.json({
+      total: totalPermutas,
+      porTipo: permutasPorTipo,
+      valorTotal: valorTotalEstimado._sum.valorEstimado || 0,
+      pendientes: permutasPendientes
+    });
+  } catch (error) {
+    console.error('Error obteniendo estadísticas de permutas:', error);
+    res.status(500).json({ error: 'Error al obtener estadísticas' });
   }
 });
 

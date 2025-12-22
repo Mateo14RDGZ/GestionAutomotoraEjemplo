@@ -12,7 +12,8 @@ import {
   Calendar,
   DollarSign,
   Users,
-  Car
+  Car,
+  RefreshCw
 } from 'lucide-react';
 import Loading from '../components/Loading';
 import StatCard from '../components/StatCard';
@@ -23,6 +24,7 @@ const Reportes = () => {
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
+  const [permutasStats, setPermutasStats] = useState(null);
   const [reportType, setReportType] = useState('general');
   const [dateRange, setDateRange] = useState({
     start: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0],
@@ -35,8 +37,17 @@ const Reportes = () => {
 
   const loadData = async () => {
     try {
-      const data = await dashboardService.getStats();
-      setStats(data);
+      const [statsData, permutasData] = await Promise.all([
+        dashboardService.getStats(),
+        fetch('/api/permutas/stats/resumen', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }).then(res => res.json()).catch(() => null)
+      ]);
+      
+      setStats(statsData);
+      setPermutasStats(permutasData);
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
@@ -622,6 +633,100 @@ const Reportes = () => {
     }
   };
 
+  const handleExportPermutasPDF = async () => {
+    try {
+      const response = await fetch('/api/permutas', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const permutas = await response.json();
+      
+      const doc = new jsPDF();
+      
+      // Encabezado
+      doc.setFontSize(18);
+      doc.setTextColor(59, 130, 246);
+      doc.text('Reporte de Permutas', 105, 20, { align: 'center' });
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 105, 28, { align: 'center' });
+      
+      // Estadísticas
+      if (permutasStats) {
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Estadísticas Generales', 14, 40);
+        
+        const statsData = [
+          ['Total de Permutas', String(permutasStats.total || 0)],
+          ['Permutas de Autos', String(permutasStats.porTipo?.find(t => t.tipo === 'auto')?._count || 0)],
+          ['Permutas de Motos', String(permutasStats.porTipo?.find(t => t.tipo === 'moto')?._count || 0)],
+          ['Otras Permutas', String(permutasStats.porTipo?.find(t => t.tipo === 'otros')?._count || 0)],
+          ['Valor Total Estimado', `$${(permutasStats.valorTotal || 0).toLocaleString()}`],
+          ['Permutas Pendientes', String(permutasStats.pendientes || 0)]
+        ];
+        
+        autoTable(doc, {
+          startY: 45,
+          body: statsData,
+          theme: 'plain',
+          styles: { fontSize: 10, cellPadding: 2 },
+          columnStyles: {
+            0: { fontStyle: 'bold', cellWidth: 80 },
+            1: { halign: 'right' }
+          }
+        });
+      }
+      
+      // Lista de permutas
+      let currentY = doc.lastAutoTable?.finalY + 15 || 90;
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Detalle de Permutas', 14, currentY);
+      
+      const permutasTableData = permutas.map(p => [
+        p.tipo.toUpperCase(),
+        p.descripcion || '-',
+        `$${(p.valorEstimado || 0).toLocaleString()}`,
+        p.cliente?.nombre || '-',
+        p.estado || 'pendiente',
+        new Date(p.createdAt).toLocaleDateString('es-ES')
+      ]);
+      
+      autoTable(doc, {
+        startY: currentY + 5,
+        head: [['Tipo', 'Descripción', 'Valor', 'Cliente', 'Estado', 'Fecha']],
+        body: permutasTableData,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: {
+          fillColor: [59, 130, 246],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+          fillColor: [245, 247, 250]
+        }
+      });
+      
+      // Pie de página
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `Página 1 de 1`,
+        doc.internal.pageSize.getWidth() / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: 'center' }
+      );
+      
+      doc.save(`reporte_permutas_${new Date().toISOString().split('T')[0]}.pdf`);
+      showToast('PDF de permutas exportado exitosamente', 'success');
+    } catch (error) {
+      console.error('Error al exportar PDF de permutas:', error);
+      showToast('Error al exportar permutas a PDF', 'error');
+    }
+  };
+
   if (loading) return <Loading message="Cargando reportes..." />;
 
   return (
@@ -757,6 +862,32 @@ const Reportes = () => {
                 Exporta el registro completo de pagos y cuotas
               </p>
               <button onClick={handleExportPagosPDF} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
+                <FileText className="w-4 h-4" />
+                PDF
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Exportar Permutas */}
+        <div className="card hover-lift animate-fadeInUp" style={{animationDelay: '0.65s'}}>
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+              <RefreshCw className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Permutas
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Exporta el registro de permutas y estadísticas
+              </p>
+              {permutasStats && (
+                <div className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                  Total: {permutasStats.total || 0} | Valor: {formatCurrency(permutasStats.valorTotal || 0)}
+                </div>
+              )}
+              <button onClick={handleExportPermutasPDF} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
                 <FileText className="w-4 h-4" />
                 PDF
               </button>

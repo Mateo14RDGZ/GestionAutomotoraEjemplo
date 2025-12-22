@@ -22,33 +22,35 @@ model Usuario {
 }
 
 model Cliente {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   nombre    String
   cedula    String
   telefono  String
   direccion String?
   email     String?
-  activo    Boolean  @default(true) // true: activo, false: archivado/completado
+  activo    Boolean   @default(true) // true: activo, false: archivado/completado
   usuario   Usuario?
   autos     Auto[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  permutas  Permuta[] // Permutas entregadas por este cliente
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Auto {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   marca      String
   modelo     String
   anio       Int
-  matricula  String   // Removido @unique para permitir múltiples autos 0km
+  matricula  String    // Removido @unique para permitir múltiples autos 0km
   precio     Float
-  estado     String   @default("disponible") // disponible, vendido, reservado
-  activo     Boolean  @default(true) // true: activo, false: archivado/completado
+  estado     String    @default("disponible") // disponible, vendido, reservado
+  activo     Boolean   @default(true) // true: activo, false: archivado/completado
   clienteId  Int?
-  cliente    Cliente? @relation(fields: [clienteId], references: [id])
+  cliente    Cliente?  @relation(fields: [clienteId], references: [id])
   pagos      Pago[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  permutas   Permuta[] // Permutas recibidas al vender este auto
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model Pago {
@@ -62,4 +64,34 @@ model Pago {
   estado            String    @default("pendiente") // pendiente, pagado, vencido
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+}
+
+model Permuta {
+  id              Int      @id @default(autoincrement())
+  tipo            String   // "auto", "moto", "otros"
+  descripcion     String?  // Descripción general o detalles del bien
+  // Datos específicos de auto
+  autoMarca       String?
+  autoModelo      String?
+  autoAnio        Int?
+  autoMatricula   String?
+  // Datos específicos de moto
+  motoMarca       String?
+  motoModelo      String?
+  motoAnio        Int?
+  // Valor
+  valorEstimado   Float    // Valor acordado de la permuta
+  valorReal       Float?   // Valor real de mercado (ajuste posterior)
+  // Relaciones
+  clienteId       Int
+  cliente         Cliente  @relation(fields: [clienteId], references: [id])
+  autoVendidoId   Int      // Auto que se vendió y por el cual se recibió la permuta
+  autoVendido     Auto     @relation(fields: [autoVendidoId], references: [id])
+  // Estado
+  estado          String   @default("pendiente") // pendiente, evaluada, procesada
+  notas           String?  // Notas del evaluador
+  // Fechas
+  fechaRecepcion  DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

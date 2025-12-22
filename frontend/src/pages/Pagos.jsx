@@ -232,6 +232,74 @@ const Pagos = () => {
   const handleGenerateCuotas = async (e) => {
     e.preventDefault();
     try {
+      // Validaciones
+      const autoSeleccionado = autos.find(a => a.id === parseInt(generateData.autoId));
+      if (!autoSeleccionado) {
+        alert('Debe seleccionar un vehículo');
+        return;
+      }
+      
+      // Validación de permuta
+      if (generateData.tienePermuta) {
+        if (!generateData.tipoPermuta) {
+          alert('Debe seleccionar un tipo de permuta');
+          return;
+        }
+        
+        let valorPermuta = 0;
+        
+        // Validar según tipo de permuta
+        if (generateData.tipoPermuta === 'auto') {
+          if (!generateData.permutaAuto.marca || !generateData.permutaAuto.modelo || 
+              !generateData.permutaAuto.anio || !generateData.permutaAuto.precio) {
+            alert('Debe completar todos los campos de la permuta de auto');
+            return;
+          }
+          valorPermuta = parseFloat(generateData.permutaAuto.precio);
+        } else if (generateData.tipoPermuta === 'moto') {
+          if (!generateData.permutaMoto.marca || !generateData.permutaMoto.modelo || 
+              !generateData.permutaMoto.anio || !generateData.permutaMoto.precio) {
+            alert('Debe completar todos los campos de la permuta de moto');
+            return;
+          }
+          valorPermuta = parseFloat(generateData.permutaMoto.precio);
+        } else if (generateData.tipoPermuta === 'otros') {
+          if (!generateData.permutaOtros.descripcion || !generateData.permutaOtros.precio) {
+            alert('Debe completar todos los campos de la permuta');
+            return;
+          }
+          valorPermuta = parseFloat(generateData.permutaOtros.precio);
+        }
+        
+        // Validar que el valor de permuta no supere el precio del auto
+        const precioAuto = parseFloat(autoSeleccionado.precio);
+        if (valorPermuta >= precioAuto) {
+          alert(`El valor de la permuta ($${valorPermuta.toLocaleString()}) no puede ser igual o mayor al precio del vehículo ($${precioAuto.toLocaleString()})`);
+          return;
+        }
+        
+        // Verificar que el monto de la cuota corresponda al precio con permuta descontada
+        const precioFinal = precioAuto - valorPermuta;
+        const montoTotalEsperado = parseFloat(generateData.montoCuota) * parseInt(generateData.numeroCuotas);
+        
+        // Permitir un margen de diferencia del 1% para intereses
+        const diferencia = Math.abs(montoTotalEsperado - precioFinal);
+        const margenPermitido = precioFinal * 0.01;
+        
+        if (diferencia > margenPermitido) {
+          const confirmacion = confirm(
+            `Advertencia: El total de las cuotas ($${montoTotalEsperado.toLocaleString()}) difiere del precio final con permuta ($${precioFinal.toLocaleString()}).\n\n` +
+            `Precio original: $${precioAuto.toLocaleString()}\n` +
+            `Valor permuta: -$${valorPermuta.toLocaleString()}\n` +
+            `Precio final: $${precioFinal.toLocaleString()}\n\n` +
+            `¿Desea continuar de todas formas?`
+          );
+          if (!confirmacion) {
+            return;
+          }
+        }
+      }
+      
       // Mapear los datos del formulario a lo que espera el backend
       const dataParaBackend = {
         autoId: generateData.autoId,
@@ -239,6 +307,22 @@ const Pagos = () => {
         montoPorCuota: parseFloat(generateData.montoCuota),
         fechaPrimeraCuota: generateData.fechaInicio
       };
+      
+      // Agregar datos de permuta si existe
+      if (generateData.tienePermuta && generateData.tipoPermuta) {
+        dataParaBackend.permuta = {
+          tienePermuta: true,
+          tipoPermuta: generateData.tipoPermuta
+        };
+        
+        if (generateData.tipoPermuta === 'auto') {
+          dataParaBackend.permuta.permutaAuto = generateData.permutaAuto;
+        } else if (generateData.tipoPermuta === 'moto') {
+          dataParaBackend.permuta.permutaMoto = generateData.permutaMoto;
+        } else if (generateData.tipoPermuta === 'otros') {
+          dataParaBackend.permuta.permutaOtros = generateData.permutaOtros;
+        }
+      }
       
       console.log('🚀 Generando plan de cuotas:', dataParaBackend);
       

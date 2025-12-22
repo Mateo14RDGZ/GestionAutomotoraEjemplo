@@ -106,6 +106,48 @@ const HistorialPagos = () => {
     y += 6;
     doc.text(`Matrícula: ${pago.auto.matricula}`, 25, y);
     
+    // Verificar si hay permuta
+    const permuta = pago.auto.permutas && pago.auto.permutas.length > 0 ? pago.auto.permutas[0] : null;
+    
+    if (permuta) {
+      y += 15;
+      doc.setFont('helvetica', 'bold');
+      doc.text('Información de Permuta:', 20, y);
+      doc.setFont('helvetica', 'normal');
+      y += 8;
+      
+      const tipoPermuta = permuta.tipo === 'auto' ? 'Automóvil' : 
+                         permuta.tipo === 'moto' ? 'Motocicleta' : 'Otros';
+      doc.text(`Tipo: ${tipoPermuta}`, 25, y);
+      y += 6;
+      
+      if (permuta.descripcion) {
+        doc.text(`Descripción: ${permuta.descripcion}`, 25, y);
+        y += 6;
+      }
+      
+      doc.text(`Valor Estimado: ${formatCurrency(permuta.valorEstimado)}`, 25, y);
+      y += 6;
+      
+      // Calcular y mostrar precio original y precio final
+      const precioOriginal = pago.auto.precio || 0;
+      const valorPermuta = permuta.valorEstimado || 0;
+      const precioFinal = precioOriginal - valorPermuta;
+      
+      y += 8;
+      doc.setFont('helvetica', 'bold');
+      doc.text('Resumen Financiero:', 20, y);
+      doc.setFont('helvetica', 'normal');
+      y += 8;
+      doc.text(`Precio Original del Vehículo: ${formatCurrency(precioOriginal)}`, 25, y);
+      y += 6;
+      doc.text(`Valor de Permuta: -${formatCurrency(valorPermuta)}`, 25, y);
+      y += 6;
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Monto Financiado: ${formatCurrency(precioFinal)}`, 25, y);
+      doc.setFont('helvetica', 'normal');
+    }
+    
     y += 15;
     doc.setFont('helvetica', 'bold');
     doc.text('Detalles del Pago:', 20, y);
@@ -307,6 +349,13 @@ const HistorialPagos = () => {
                         <span className="text-gray-600 dark:text-gray-400">Pagado el:</span>
                         <span className="ml-2 font-medium text-green-600 dark:text-green-400">
                           {formatDate(pago.fechaPago)}
+                        </span>
+                      </div>
+                    )}
+                    {pago.auto.permutas && pago.auto.permutas.length > 0 && (
+                      <div className="col-span-2 mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                        <span className="text-blue-600 dark:text-blue-400 font-medium">
+                          🔄 Permuta: {pago.auto.permutas[0].descripcion} - {formatCurrency(pago.auto.permutas[0].valorEstimado)}
                         </span>
                       </div>
                     )}
