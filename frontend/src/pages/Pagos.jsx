@@ -49,8 +49,7 @@ const Pagos = () => {
       modelo: '',
       anio: '',
       matricula: '',
-      precio: '',
-      agregarCatalogo: false
+      precio: ''
     },
     permutaMoto: {
       marca: '',
@@ -240,28 +239,12 @@ const Pagos = () => {
         montoPorCuota: parseFloat(generateData.montoCuota),
         fechaPrimeraCuota: generateData.fechaInicio
       };
-
-      // Agregar datos de permuta si existen
-      if (generateData.tienePermuta) {
-        dataParaBackend.permuta = {
-          tienePermuta: generateData.tienePermuta,
-          tipoPermuta: generateData.tipoPermuta,
-          permutaAuto: generateData.tipoPermuta === 'auto' ? generateData.permutaAuto : null,
-          permutaMoto: generateData.tipoPermuta === 'moto' ? generateData.permutaMoto : null,
-          permutaOtros: generateData.tipoPermuta === 'otros' ? generateData.permutaOtros : null
-        };
-      }
       
       console.log('🚀 Generando plan de cuotas:', dataParaBackend);
       
-      const response = await pagosService.generarCuotas(dataParaBackend);
+      await pagosService.generarCuotas(dataParaBackend);
       
       console.log('✅ Plan de cuotas generado exitosamente');
-      
-      // Mostrar mensaje si se agregó auto de permuta
-      if (response && response.autoPermuta && response.autoPermuta.agregado) {
-        alert(`✅ Plan de cuotas creado exitosamente.\n\n🚗 Auto de permuta agregado al catálogo:\n${response.autoPermuta.marca} ${response.autoPermuta.modelo}`);
-      }
       
       setShowGenerateModal(false);
       resetGenerateForm();
@@ -459,8 +442,7 @@ const Pagos = () => {
         modelo: '',
         anio: '',
         matricula: '',
-        precio: '',
-        agregarCatalogo: false
+        precio: ''
       },
       permutaMoto: {
         marca: '',
@@ -1339,27 +1321,6 @@ const Pagos = () => {
                                     />
                                   </div>
                                 </div>
-                              </div>
-
-                              {/* Opción para agregar al catálogo */}
-                              <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={generateData.permutaAuto.agregarCatalogo}
-                                    onChange={(e) => setGenerateData({
-                                      ...generateData,
-                                      permutaAuto: { ...generateData.permutaAuto, agregarCatalogo: e.target.checked }
-                                    })}
-                                    className="w-4 h-4 text-blue-400 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-400"
-                                  />
-                                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                                    Agregar vehículo al catálogo
-                                  </span>
-                                </label>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
-                                  El vehículo se agregará como disponible en el inventario
-                                </p>
                               </div>
                             </div>
                           )}
