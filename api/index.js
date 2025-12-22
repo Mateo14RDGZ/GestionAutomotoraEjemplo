@@ -157,7 +157,7 @@ app.post('/api/auth/login-cliente', [
     const { cedula } = req.body;
     console.log('Intentando login de cliente con cédula:', cedula);
 
-    // Buscar cliente por cédula con sus autos
+    // Buscar cliente por cédula con sus autos y permutas
     const cliente = await prisma.cliente.findFirst({
       where: { cedula },
       include: { 
@@ -165,7 +165,8 @@ app.post('/api/auth/login-cliente', [
           where: {
             estado: 'financiado'
           }
-        }
+        },
+        permutas: true
       }
     });
 
@@ -175,9 +176,9 @@ app.post('/api/auth/login-cliente', [
       return res.status(401).json({ error: 'Cliente no encontrado' });
     }
 
-    // Verificar que tenga al menos un auto financiado (plan de cuotas)
-    if (!cliente.autos || cliente.autos.length === 0) {
-      return res.status(401).json({ error: 'Cliente sin plan de cuotas activo' });
+    // Verificar que tenga al menos un auto financiado (plan de cuotas) o una permuta
+    if ((!cliente.autos || cliente.autos.length === 0) && (!cliente.permutas || cliente.permutas.length === 0)) {
+      return res.status(401).json({ error: 'Cliente sin plan de cuotas activo ni permutas' });
     }
 
     console.log(`Cliente ${cliente.nombre} tiene ${cliente.autos.length} auto(s) financiado(s)`);
@@ -720,8 +721,7 @@ app.post('/api/pagos/generar-cuotas', authenticateToken, requireAdmin, async (re
         tipo: permuta.tipoPermuta,
         valorEstimado: 0,
         clienteId: auto.clienteId,
-        autoVendidoId: parseInt(autoId),
-        estado: 'pendiente'
+        autoVendidoId: parseInt(autoId)
       };
 
       // Agregar datos según el tipo
@@ -983,15 +983,10 @@ app.get('/api/permutas/stats/resumen', authenticateToken, requireAdmin, async (r
       }
     });
 
-    const permutasPendientes = await prisma.permuta.count({
-      where: { estado: 'pendiente' }
-    });
-
     res.json({
       total: totalPermutas,
       porTipo: permutasPorTipo,
-      valorTotal: valorTotalEstimado._sum.valorEstimado || 0,
-      pendientes: permutasPendientes
+      valorTotal: valorTotalEstimado._sum.valorEstimado || 0
     });
   } catch (error) {
     console.error('Error obteniendo estadísticas de permutas:', error);

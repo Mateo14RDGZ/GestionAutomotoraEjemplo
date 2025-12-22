@@ -663,8 +663,7 @@ const Reportes = () => {
           ['Permutas de Autos', String(permutasStats.porTipo?.find(t => t.tipo === 'auto')?._count || 0)],
           ['Permutas de Motos', String(permutasStats.porTipo?.find(t => t.tipo === 'moto')?._count || 0)],
           ['Otras Permutas', String(permutasStats.porTipo?.find(t => t.tipo === 'otros')?._count || 0)],
-          ['Valor Total Estimado', `$${(permutasStats.valorTotal || 0).toLocaleString()}`],
-          ['Permutas Pendientes', String(permutasStats.pendientes || 0)]
+          ['Valor Total Estimado', `$${(permutasStats.valorTotal || 0).toLocaleString()}`]
         ];
         
         autoTable(doc, {
@@ -690,13 +689,12 @@ const Reportes = () => {
         p.descripcion || '-',
         `$${(p.valorEstimado || 0).toLocaleString()}`,
         p.cliente?.nombre || '-',
-        p.estado || 'pendiente',
         new Date(p.createdAt).toLocaleDateString('es-ES')
       ]);
       
       autoTable(doc, {
         startY: currentY + 5,
-        head: [['Tipo', 'Descripción', 'Valor', 'Cliente', 'Estado', 'Fecha']],
+        head: [['Tipo', 'Descripción', 'Valor', 'Cliente', 'Fecha']],
         body: permutasTableData,
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: {

@@ -87,8 +87,7 @@ model Permuta {
   cliente         Cliente  @relation(fields: [clienteId], references: [id])
   autoVendidoId   Int      // Auto que se vendió y por el cual se recibió la permuta
   autoVendido     Auto     @relation(fields: [autoVendidoId], references: [id])
-  // Estado
-  estado          String   @default("pendiente") // pendiente, evaluada, procesada
+  // Notas
   notas           String?  // Notas del evaluador
   // Fechas
   fechaRecepcion  DateTime @default(now())
