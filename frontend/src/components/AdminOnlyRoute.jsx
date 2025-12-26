@@ -8,7 +8,7 @@ const AdminOnlyRoute = () => {
   if (user?.rol !== 'admin') {
     // Redirigir a la página principal según el rol
     if (user?.rol === 'empleado') {
-      return <Navigate to="/autos" replace />;
+      return <Navigate to="/empleado-dashboard" replace />;
     }
     return <Navigate to="/mi-dashboard" replace />;
   }
