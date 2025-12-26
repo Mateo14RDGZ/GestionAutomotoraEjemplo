@@ -324,7 +324,7 @@ const Autos = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right text-sm font-medium">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-2" style={{position: 'relative'}}>
                         <button
                           onClick={() => handleEdit(auto)}
                           className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
@@ -333,29 +333,26 @@ const Autos = () => {
                         </button>
                         {/* Botón discreto solo ícono para asignar cliente */}
                         {!auto.cliente && (
-                          <button
-                            onClick={() => abrirAsignarCliente(auto)}
-                            title="Asignar cliente"
-                            className="p-1 rounded hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(auto.id)}
-                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                          {/* Modal para asignar cliente */}
-                          {showAsignarCliente && (
-                            <div className="fixed inset-0 bg-black dark:bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
-                              <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto border border-gray-300 dark:border-gray-700 p-6">
-                                <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Asignar cliente</h2>
-                                <form onSubmit={handleAsignarCliente} className="space-y-4">
+                          <>
+                            <button
+                              onClick={() => abrirAsignarCliente(auto)}
+                              title="Asignar cliente"
+                              className="p-1 rounded hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400"
+                              style={{zIndex: 20}}
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                            {showAsignarCliente && autoAsignarCliente && autoAsignarCliente.id === auto.id && (
+                              <div
+                                className="absolute right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg p-4 z-50 min-w-[220px]"
+                                style={{top: '2.5rem'}}
+                                tabIndex={0}
+                                onBlur={() => setShowAsignarCliente(false)}
+                              >
+                                <h2 className="text-base font-bold mb-2 text-gray-900 dark:text-white">Asignar cliente</h2>
+                                <form onSubmit={handleAsignarCliente} className="space-y-2">
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cliente</label>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Cliente</label>
                                     <select
                                       value={clienteAsignar}
                                       onChange={e => setClienteAsignar(e.target.value)}
@@ -370,14 +367,22 @@ const Autos = () => {
                                       ))}
                                     </select>
                                   </div>
-                                  <div className="flex gap-3 pt-2">
-                                    <button type="submit" className="btn btn-primary flex-1">Asignar</button>
-                                    <button type="button" className="btn btn-secondary flex-1" onClick={() => setShowAsignarCliente(false)}>Cancelar</button>
+                                  <div className="flex gap-2 pt-1">
+                                    <button type="submit" className="btn btn-primary flex-1 btn-xs">Asignar</button>
+                                    <button type="button" className="btn btn-secondary flex-1 btn-xs" onClick={() => setShowAsignarCliente(false)}>Cancelar</button>
                                   </div>
                                 </form>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </>
+                        )}
+                        <button
+                          onClick={() => handleDelete(auto.id)}
+                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
