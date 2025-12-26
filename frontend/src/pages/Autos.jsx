@@ -1,3 +1,18 @@
+import { useEffect, useState } from 'react';
+import { autosService, clientesService } from '../services';
+import { Car, Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
+import ConfirmDialog from '../components/ConfirmDialog';
+
+const Autos = () => {
+  const { showToast } = useToast();
+  const [autos, setAutos] = useState([]);
+  const [clientes, setClientes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [estadoFilter, setEstadoFilter] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingAuto, setEditingAuto] = useState(null);
   // Modal para asignar cliente
   const [showAsignarCliente, setShowAsignarCliente] = useState(false);
   const [autoAsignarCliente, setAutoAsignarCliente] = useState(null);
@@ -23,21 +38,6 @@
       showToast(error.message || error.response?.data?.error || 'Error al asignar cliente', 'error');
     }
   };
-import { useEffect, useState } from 'react';
-import { autosService, clientesService } from '../services';
-import { Car, Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
-import { useToast } from '../context/ToastContext';
-import ConfirmDialog from '../components/ConfirmDialog';
-
-const Autos = () => {
-  const { showToast } = useToast();
-  const [autos, setAutos] = useState([]);
-  const [clientes, setClientes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [estadoFilter, setEstadoFilter] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [editingAuto, setEditingAuto] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, autoId: null });
   const [formData, setFormData] = useState({
     marca: '',
