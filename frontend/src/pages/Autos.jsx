@@ -163,8 +163,8 @@ const Autos = () => {
       anio: new Date().getFullYear(),
       matricula: '',
       precio: '',
-      estado: 'disponible',
-      ;
+      clienteId: '',
+    });
   };
 
   const getEstadoBadge = (estado) => {
