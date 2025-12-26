@@ -7,6 +7,10 @@ import { CreditCard, Plus, AlertCircle, CheckCircle, Calendar, DollarSign, User,
 const Pagos = () => {
   const { user } = useAuth();
   const location = useLocation();
+  
+  // Helper para verificar si es staff (admin o empleado)
+  const isStaff = user?.rol === 'admin' || user?.rol === 'empleado';
+  
   const [pagos, setPagos] = useState([]);
   const [autos, setAutos] = useState([]);
   const [clientes, setClientes] = useState([]);
@@ -72,7 +76,7 @@ const Pagos = () => {
 
   // Auto-refresh para clientes: actualizar datos cada 30 segundos
   useEffect(() => {
-    if (user?.rol !== 'admin') {
+    if (!isStaff) {
       console.log('🔄 Auto-refresh activado para cliente (cada 30s)');
       const interval = setInterval(() => {
         console.log('🔄 Actualizando datos automáticamente...');
@@ -90,8 +94,8 @@ const Pagos = () => {
     try {
       setLoading(true);
       
-      if (user?.rol === 'admin') {
-        // Cargar datos para admin
+      if (isStaff) {
+        // Cargar datos para staff (admin y empleado)
         const [autosData, clientesData] = await Promise.all([
           autosService.getAll(),
           clientesService.getAll(),
@@ -615,14 +619,14 @@ const Pagos = () => {
       <div className="flex justify-between items-center">
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {user?.rol === 'admin' ? 'Gestión de Pagos' : 'Mis Cuotas'}
+            {isStaff ? 'Gestión de Pagos' : 'Mis Cuotas'}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            {user?.rol === 'admin' 
+            {isStaff
               ? 'Administra las cuotas y pagos' 
               : 'Consulta tus cuotas pagadas y pendientes'}
           </p>
-          {user?.rol !== 'admin' && lastUpdate && (
+          {!isStaff && lastUpdate && (
             <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 flex items-center gap-1">
               <RefreshCw className="w-3 h-3" />
               Última actualización: {lastUpdate.toLocaleTimeString('es-UY')} (se actualiza cada 30s)
@@ -630,7 +634,7 @@ const Pagos = () => {
           )}
         </div>
         <div className="flex gap-2">
-          {user?.rol !== 'admin' && (
+          {!isStaff && (
             <button
               onClick={() => handleFilter(filter)}
               disabled={loading}
@@ -641,7 +645,7 @@ const Pagos = () => {
               <span className="hidden sm:inline">Actualizar</span>
             </button>
           )}
-          {user?.rol === 'admin' && (
+          {isStaff && (
             <button
               onClick={() => {
                 resetGenerateForm();
@@ -687,7 +691,7 @@ const Pagos = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
           </div>
         </div>
-      ) : user?.rol === 'admin' ? (
+      ) : isStaff ? (
         /* Vista Admin: Clientes agrupados */
         <div className="space-y-4">
           {clientesConPagos.length === 0 ? (
