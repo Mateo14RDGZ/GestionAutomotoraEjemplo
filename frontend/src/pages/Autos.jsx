@@ -243,8 +243,8 @@ const Autos = () => {
             >
               <option value="">Todos los estados</option>
               <option value="disponible">Disponible</option>
+              <option value="financiado">Financiado</option>
               <option value="vendido">Vendido</option>
-              <option value="reservado">Reservado</option>
             </select>
           </div>
         </div>
