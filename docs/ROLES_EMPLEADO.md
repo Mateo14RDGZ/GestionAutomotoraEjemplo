@@ -7,24 +7,10 @@ Se ha implementado un nuevo rol de usuario **"empleado"** que tiene acceso limit
 ## 👥 Roles Disponibles
 
 ### 1. **Admin** (Administrador)
-- ✅ Acceso completo a todas las funcionalidades
-- ✅ Dashboard con estadísticas financieras
-- ✅ Gestión de Autos, Clientes y Pagos
-- ✅ Reportes y análisis
-- ✅ Permutas
 
 ### 2. **Empleado** (Nuevo)
-- ✅ Gestión de Autos (crear, editar, eliminar, ver)
-- ✅ Gestión de Clientes (crear, editar, eliminar, ver)
-- ✅ Gestión de Pagos (ver, registrar, generar cuotas)
-- ✅ Permutas (ver, crear, editar)
-- ❌ Dashboard (información financiera)
-- ❌ Reportes
 
 ### 3. **Cliente**
-- ✅ Ver su propio dashboard
-- ✅ Ver sus cuotas y pagos
-- ❌ No puede acceder a funciones administrativas
 
 ## 🔐 Credenciales del Empleado
 
@@ -48,14 +34,11 @@ node generate-empleado.js
 Ejecuta los siguientes comandos SQL en tu consola de Neon:
 
 ```sql
--- Eliminar usuario empleado existente si hay alguno
 DELETE FROM "Usuario" WHERE email = 'empleado@demo.com';
 
--- Crear nuevo usuario empleado
 INSERT INTO "Usuario" ("email", "password", "rol")
 VALUES ('empleado@demo.com', '$2a$10$OJNATC1ejhsCN33f.zsS.uwbLrACJ.8upfC6eho14qs7AZ7vbO9m2', 'empleado');
 
--- Verificar
 SELECT id, email, rol FROM "Usuario" WHERE email = 'empleado@demo.com';
 ```
 
@@ -104,7 +87,6 @@ SELECT id, email, rol FROM "Usuario" WHERE email = 'empleado@demo.com';
 4. Menú muestra solo: Autos, Clientes, Pagos
 
 ### Intento de Acceso No Autorizado
-- Si un empleado intenta acceder a `/dashboard` o `/reportes`:
   - Frontend: Redirige automáticamente a `/autos`
   - Backend: Retorna error 403 si intenta acceder a la API
 
@@ -126,10 +108,6 @@ Empleado
 
 ## ⚠️ Importante
 
-- **Seguridad**: El hash de contraseña mostrado arriba es específico para esta instalación
-- **Regeneración**: Si cambias la contraseña, debes ejecutar `generate-empleado.js` nuevamente
-- **Base de Datos**: Asegúrate de ejecutar el SQL en tu base de datos de Neon
-- **Testing**: Prueba todas las funcionalidades con el usuario empleado antes de producción
 
 ## 🧪 Testing
 
@@ -143,7 +121,3 @@ Para probar el sistema de roles:
 
 ## 📚 Documentación Adicional
 
-- [Prisma Schema](api/prisma/schema.prisma)
-- [Middleware de Autenticación](api/lib/auth.js)
-- [Rutas del Frontend](frontend/src/App.jsx)
-- [Layout Adaptativo](frontend/src/components/Layout.jsx)
