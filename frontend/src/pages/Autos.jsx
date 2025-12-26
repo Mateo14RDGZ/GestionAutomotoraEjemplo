@@ -306,6 +306,21 @@ const Autos = () => {
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
+                        {/* Botón para asignar cliente solo si no tiene */}
+                        {!auto.cliente && (
+                          <button
+                            onClick={() => {
+                              setEditingAuto(auto);
+                              setShowModal(true);
+                            }}
+                            className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                          >
+                            <span className="inline-flex items-center gap-1">
+                              <Plus className="w-4 h-4" />
+                              Asignar cliente
+                            </span>
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDelete(auto.id)}
                           className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
@@ -499,24 +514,29 @@ const Autos = () => {
                   )}
 
                   <div className={editingAuto ? "md:col-span-1" : "md:col-span-2"}>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Cliente Asignado
-                    </label>
-                    <select
-                      value={formData.clienteId}
-                      onChange={(e) => setFormData({ ...formData, clienteId: e.target.value })}
-                      className="input"
-                    >
-                      <option value="">Sin cliente asignado</option>
-                      {getClientesSinPlanesActivos().map((cliente) => (
-                        <option key={cliente.id} value={cliente.id}>
-                          {cliente.nombre} - {cliente.cedula}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Solo se muestran clientes sin planes de cuotas activos
-                    </p>
+                    {/* Campo de cliente solo al crear, no al editar */}
+                    {!editingAuto && (
+                      <>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Cliente Asignado
+                        </label>
+                        <select
+                          value={formData.clienteId}
+                          onChange={(e) => setFormData({ ...formData, clienteId: e.target.value })}
+                          className="input"
+                        >
+                          <option value="">Sin cliente asignado</option>
+                          {getClientesSinPlanesActivos().map((cliente) => (
+                            <option key={cliente.id} value={cliente.id}>
+                              {cliente.nombre} - {cliente.cedula}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Solo se muestran clientes sin planes de cuotas activos
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
 
