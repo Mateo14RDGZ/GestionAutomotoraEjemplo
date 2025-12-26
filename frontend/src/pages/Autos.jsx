@@ -20,7 +20,6 @@ const Autos = () => {
     anio: new Date().getFullYear(),
     matricula: '',
     precio: '',
-    estado: 'disponible',
     clienteId: '',
   });
 
@@ -101,9 +100,13 @@ const Autos = () => {
         anio: parseInt(formData.anio),
         matricula: formData.matricula,
         precio: parseFloat(formData.precio),
-        estado: formData.estado,
         clienteId: formData.clienteId ? parseInt(formData.clienteId) : null
       };
+      
+      // Solo incluir estado si estamos editando
+      if (editingAuto) {
+        dataToSend.estado = editingAuto.estado; // Mantener el estado actual
+      }
       
       console.log('🚗 Guardando auto:', { dataToSend, editingAuto });
       
@@ -147,7 +150,6 @@ const Autos = () => {
       anio: auto.anio,
       matricula: auto.matricula,
       precio: auto.precio,
-      estado: auto.estado,
       clienteId: auto.clienteId || '',
     });
     setShowModal(true);
@@ -162,8 +164,7 @@ const Autos = () => {
       matricula: '',
       precio: '',
       estado: 'disponible',
-      clienteId: '',
-    });
+      ;
   };
 
   const getEstadoBadge = (estado) => {
@@ -481,24 +482,25 @@ const Autos = () => {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Estado *
-                    </label>
-                    <select
-                      value={formData.estado}
-                      onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
-                      className="input"
-                    >
-                      <option value="disponible">Disponible</option>
-                      <option value="vendido">Vendido</option>
-                      <option value="reservado">Reservado</option>
-                    </select>
-                  </div>
+                  {editingAuto && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Estado (Automático)
+                      </label>
+                      <div className="input bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed">
+                        {editingAuto.estado === 'disponible' && '🟢 Disponible'}
+                        {editingAuto.estado === 'financiado' && '🟡 En Financiamiento'}
+                        {editingAuto.estado === 'vendido' && '🔵 Vendido'}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        El estado se actualiza automáticamente según el flujo de venta
+                      </p>
+                    </div>
+                  )}
 
-                  <div className="md:col-span-2">
+                  <div className={editingAuto ? "md:col-span-1" : "md:col-span-2"}>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Cliente
+                      Cliente Asignado
                     </label>
                     <select
                       value={formData.clienteId}
