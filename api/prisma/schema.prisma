@@ -14,7 +14,7 @@ model Usuario {
   id        Int      @id @default(autoincrement())
   email     String
   password  String
-  rol       String   @default("admin") // "admin" o "cliente"
+  rol       String   @default("admin") // "admin", "empleado" o "cliente"
   clienteId Int?     @unique
   cliente   Cliente? @relation(fields: [clienteId], references: [id])
   createdAt DateTime @default(now())

@@ -61,9 +61,18 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Middleware para verificar que sea admin (solo admin)
 const requireAdmin = (req, res, next) => {
   if (req.user.rol !== 'admin') {
     return res.status(403).json({ error: 'Acceso denegado. Se requiere rol de administrador.' });
+  }
+  next();
+};
+
+// Middleware para verificar que sea staff (admin o empleado)
+const requireStaff = (req, res, next) => {
+  if (req.user.rol !== 'admin' && req.user.rol !== 'empleado') {
+    return res.status(403).json({ error: 'Acceso denegado. Se requiere rol de staff.' });
   }
   next();
 };
@@ -334,7 +343,7 @@ app.get('/api/autos/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/autos', authenticateToken, requireAdmin, async (req, res) => {
+app.post('/api/autos', authenticateToken, requireStaff, async (req, res) => {
   try {
     const { marca, modelo, anio, matricula, precio, estado, clienteId } = req.body;
 
@@ -412,7 +421,7 @@ app.post('/api/autos', authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
-app.put('/api/autos/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.put('/api/autos/:id', authenticateToken, requireStaff, async (req, res) => {
   try {
     const { marca, modelo, anio, matricula, precio, estado, clienteId } = req.body;
 
@@ -467,7 +476,7 @@ app.put('/api/autos/:id', authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
-app.delete('/api/autos/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/autos/:id', authenticateToken, requireStaff, async (req, res) => {
   try {
     await prisma.auto.delete({
       where: { id: parseInt(req.params.id) }
@@ -530,7 +539,7 @@ app.get('/api/clientes/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/clientes', authenticateToken, requireAdmin, async (req, res) => {
+app.post('/api/clientes', authenticateToken, requireStaff, async (req, res) => {
   try {
     const { nombre, cedula, telefono, direccion, email } = req.body;
 
@@ -575,7 +584,7 @@ app.post('/api/clientes', authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
-app.put('/api/clientes/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.put('/api/clientes/:id', authenticateToken, requireStaff, async (req, res) => {
   try {
     const { nombre, cedula, telefono, direccion, email, activo } = req.body;
 
@@ -592,7 +601,7 @@ app.put('/api/clientes/:id', authenticateToken, requireAdmin, async (req, res) =
   }
 });
 
-app.delete('/api/clientes/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/clientes/:id', authenticateToken, requireStaff, async (req, res) => {
   try {
     await prisma.cliente.delete({
       where: { id: parseInt(req.params.id) }
@@ -690,7 +699,7 @@ app.get('/api/pagos/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/pagos/generar-cuotas', authenticateToken, requireAdmin, async (req, res) => {
+app.post('/api/pagos/generar-cuotas', authenticateToken, requireStaff, async (req, res) => {
   try {
     const { autoId, numeroCuotas, montoPorCuota, fechaPrimeraCuota, permuta } = req.body;
 
@@ -800,7 +809,7 @@ app.post('/api/pagos/generar-cuotas', authenticateToken, requireAdmin, async (re
   }
 });
 
-app.put('/api/pagos/:id/registrar-pago', authenticateToken, requireAdmin, async (req, res) => {
+app.put('/api/pagos/:id/registrar-pago', authenticateToken, requireStaff, async (req, res) => {
   try {
     const pago = await prisma.pago.update({
       where: { id: parseInt(req.params.id) },
@@ -871,7 +880,7 @@ app.put('/api/pagos/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/api/pagos/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/pagos/:id', authenticateToken, requireStaff, async (req, res) => {
   try {
     await prisma.pago.delete({
       where: { id: parseInt(req.params.id) }
@@ -887,7 +896,7 @@ app.delete('/api/pagos/:id', authenticateToken, requireAdmin, async (req, res) =
 // ==================== RUTAS DE PERMUTAS ====================
 
 // Obtener todas las permutas
-app.get('/api/permutas', authenticateToken, requireAdmin, async (req, res) => {
+app.get('/api/permutas', authenticateToken, requireStaff, async (req, res) => {
   try {
     const permutas = await prisma.permuta.findMany({
       include: {
@@ -907,7 +916,7 @@ app.get('/api/permutas', authenticateToken, requireAdmin, async (req, res) => {
 });
 
 // Obtener permuta por ID
-app.get('/api/permutas/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.get('/api/permutas/:id', authenticateToken, requireStaff, async (req, res) => {
   try {
     const permuta = await prisma.permuta.findUnique({
       where: { id: parseInt(req.params.id) },
@@ -949,7 +958,7 @@ app.get('/api/permutas/auto/:autoId', authenticateToken, async (req, res) => {
 });
 
 // Actualizar permuta
-app.put('/api/permutas/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.put('/api/permutas/:id', authenticateToken, requireStaff, async (req, res) => {
   try {
     const permuta = await prisma.permuta.update({
       where: { id: parseInt(req.params.id) },
@@ -968,7 +977,7 @@ app.put('/api/permutas/:id', authenticateToken, requireAdmin, async (req, res) =
 });
 
 // Estadísticas de permutas
-app.get('/api/permutas/stats/resumen', authenticateToken, requireAdmin, async (req, res) => {
+app.get('/api/permutas/stats/resumen', authenticateToken, requireStaff, async (req, res) => {
   try {
     const totalPermutas = await prisma.permuta.count();
     

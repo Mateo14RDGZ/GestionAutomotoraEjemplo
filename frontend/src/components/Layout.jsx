@@ -35,18 +35,33 @@ const Layout = () => {
   };
 
   // Items del menú según el rol
-  const navItems = user?.rol === 'admin' 
-    ? [
+  const getNavItems = () => {
+    if (user?.rol === 'admin') {
+      return [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Escritorio' },
         { to: '/autos', icon: Car, label: 'Autos' },
         { to: '/clientes', icon: Users, label: 'Clientes' },
         { to: '/pagos', icon: CreditCard, label: 'Pagos' },
         { to: '/reportes', icon: FileText, label: 'Reportes' },
-      ]
-    : [
-        { to: '/mi-dashboard', icon: TrendingUp, label: 'Mi Escritorio' },
-        { to: '/pagos', icon: CreditCard, label: 'Mis Cuotas' },
       ];
+    }
+    
+    if (user?.rol === 'empleado') {
+      return [
+        { to: '/autos', icon: Car, label: 'Autos' },
+        { to: '/clientes', icon: Users, label: 'Clientes' },
+        { to: '/pagos', icon: CreditCard, label: 'Pagos' },
+      ];
+    }
+    
+    // Cliente
+    return [
+      { to: '/mi-dashboard', icon: TrendingUp, label: 'Mi Escritorio' },
+      { to: '/pagos', icon: CreditCard, label: 'Mis Cuotas' },
+    ];
+  };
+
+  const navItems = getNavItems();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -87,7 +102,7 @@ const Layout = () => {
                   {user?.cliente?.nombre || user?.email}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  {user?.rol === 'admin' ? 'Administrador' : 'Cliente'}
+                  {user?.rol === 'admin' ? 'Administrador' : user?.rol === 'empleado' ? 'Empleado' : 'Cliente'}
                 </p>
               </div>
               <button

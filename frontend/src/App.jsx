@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
 import PrivateRoute from './components/PrivateRoute';
 import RoleBasedRedirect from './components/RoleBasedRedirect';
+import AdminOnlyRoute from './components/AdminOnlyRoute';
 import Layout from './components/Layout';
 import ThemeTransitionOverlay from './components/ThemeTransitionOverlay';
 import InstallPWABanner from './components/InstallPWABanner';
@@ -28,11 +29,19 @@ function App() {
               <Route element={<PrivateRoute />}>
                 <Route element={<Layout />}>
                   <Route path="/" element={<RoleBasedRedirect />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
+                  
+                  {/* Rutas solo para admin */}
+                  <Route element={<AdminOnlyRoute />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/reportes" element={<Reportes />} />
+                  </Route>
+                  
+                  {/* Rutas para staff (admin y empleado) */}
                   <Route path="/autos" element={<Autos />} />
                   <Route path="/clientes" element={<Clientes />} />
                   <Route path="/pagos" element={<Pagos />} />
-                  <Route path="/reportes" element={<Reportes />} />
+                  
+                  {/* Ruta para clientes */}
                   <Route path="/mi-dashboard" element={<ClienteDashboard />} />
                 </Route>
               </Route>

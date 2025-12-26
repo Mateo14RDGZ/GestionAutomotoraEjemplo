@@ -9,6 +9,10 @@ const RoleBasedRedirect = () => {
     return <Navigate to="/dashboard" replace />;
   }
   
+  if (user?.rol === 'empleado') {
+    return <Navigate to="/autos" replace />;
+  }
+  
   // Los clientes van a su dashboard personal
   return <Navigate to="/mi-dashboard" replace />;
 };

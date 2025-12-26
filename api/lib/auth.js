@@ -26,6 +26,14 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
+// Middleware para verificar que el usuario es administrador o empleado (staff)
+const isStaff = (req, res, next) => {
+  if (req.user.rol !== 'admin' && req.user.rol !== 'empleado') {
+    return res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de staff.' });
+  }
+  next();
+};
+
 // Middleware para verificar que el usuario es cliente
 const isCliente = (req, res, next) => {
   if (req.user.rol !== 'cliente') {
@@ -34,4 +42,4 @@ const isCliente = (req, res, next) => {
   next();
 };
 
-module.exports = { authMiddleware, isAdmin, isCliente };
+module.exports = { authMiddleware, isAdmin, isStaff, isCliente };
