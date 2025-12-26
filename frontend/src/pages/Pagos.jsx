@@ -37,8 +37,6 @@ const Pagos = () => {
   const clientesConPagosFiltrados = isStaff && clienteSearch.trim()
     ? clientesConPagos.filter(c => c.cliente.nombre.toLowerCase().includes(clienteSearch.trim().toLowerCase()))
     : clientesConPagos;
-    fechaVencimiento: '',
-  });
   const [generateData, setGenerateData] = useState({
     autoId: '',
     precioTotal: '',
