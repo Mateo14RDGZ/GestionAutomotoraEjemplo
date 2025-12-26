@@ -11,13 +11,6 @@ const Pagos = () => {
   // Helper para verificar si es staff (admin o empleado)
   const isStaff = user?.rol === 'admin' || user?.rol === 'empleado';
 
-    // ...existing code...
-    const [clienteSearch, setClienteSearch] = useState('');
-    // Filtrar clientes por nombre (solo staff)
-    const clientesConPagosFiltrados = isStaff && clienteSearch.trim()
-      ? clientesConPagos.filter(c => c.cliente.nombre.toLowerCase().includes(clienteSearch.trim().toLowerCase()))
-      : clientesConPagos;
-  
   const [pagos, setPagos] = useState([]);
   const [autos, setAutos] = useState([]);
   const [clientes, setClientes] = useState([]);
@@ -38,6 +31,12 @@ const Pagos = () => {
     autoId: '',
     numeroCuota: 1,
     monto: '',
+  });
+  const [clienteSearch, setClienteSearch] = useState('');
+  // Filtrar clientes por nombre (solo staff)
+  const clientesConPagosFiltrados = isStaff && clienteSearch.trim()
+    ? clientesConPagos.filter(c => c.cliente.nombre.toLowerCase().includes(clienteSearch.trim().toLowerCase()))
+    : clientesConPagos;
     fechaVencimiento: '',
   });
   const [generateData, setGenerateData] = useState({
